@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail{% endblock %}
+
+{% block content %}
+  <h1>Topics</h1>
+  <a href="{% url 'learning_logs:new_topic' %}">Create New Topic</a>
+  <ul>
+  {% for topic in topics %}
+    <li>{{ topic.text }}</li>
+  {% empty %}
+    <li>No topics</li>
+  {% endfor %}
+  </ul>
+{% endblock %}

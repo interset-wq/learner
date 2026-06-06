@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <form action="{% url 'core:vote' question.id %}" method="post">
+        {% csrf_token %}
+        <fieldset class="border border-gray-400 rounded-xl p-6 bg-gray-50">
+            <legend class="text-2xl font-bold mb-4">
+                {{ question.question_text }}
+            </legend>
+
+            {% if error_message %}
+                <p class="bg-red-50 text-red-600 px-3 py-2 rounded-md mb-4 border border-red-200">
+                    {{ error_message }}
+                </p>
+            {% endif %}
+
+            <div class="space-y-3 mb-6">
+                {% for choice in question.choice_set.all %}
+                <div class="flex items-center gap-3 py-2 px-3 rounded hover:bg-gray-100 transition-colors">
+                    <input type="radio"
+                           name="choice"
+                           id="choice{{ forloop.counter }}"
+                           value="{{ choice.id }}"
+                           class="w-4 h-4 accent-blue-600 cursor-pointer"
+                    />
+                    <label for="choice{{ forloop.counter }}" class="cursor-pointer text-lg">
+                        {{ choice.choice_text }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium">
+                Vote
+            </button>
+        </fieldset>
+    </form>
+</div>
+{% endblock %}

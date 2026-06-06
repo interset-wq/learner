@@ -1,0 +1,12 @@
+{% load static %}
+
+<header class="bg-green-800 text-white shadow-md py-4 px-6 flex justify-between">
+    <div class="flex items-center gap-1">
+        <img src="{% static 'favicon.ico' %}" alt="logo">
+        <span class="text-xl font-bold"><a href="/">Learning Log</a></span>
+    </div>
+    <nav class="space-x-4">
+        <a href="/" class="hover:underline">Home</a>
+        <a href="{% url "learning_logs:topics" %}" class="hover:underline">Topics</a>
+    </nav>
+</header>

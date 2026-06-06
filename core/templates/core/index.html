@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}Index{% endblock %}
+
+{% block content %}
+    <div class="max-w-3xl mx-auto px-4 py-6">
+        <h1 class="text-4xl font-bold pb-6">Welcome to Poll</h1>
+
+        <ul class="mt-6 space-y-4 list-none p-0">
+            {% for question in latest_question_list %}
+                <li class="bg-gray-100 border border-gray-200 rounded-lg px-5 py-4">
+                    <a href="{% url 'core:detail' question.id %}"
+                       class="text-xl text-blue-600 hover:underline font-medium">
+                        {{ question.question_text }}
+                    </a>
+                    <div class="text-sm text-gray-500 mt-2">Date Pubilished：{{ question.pub_date }}</div>
+                </li>
+            {% empty %}
+                <li class="py-10 text-center text-gray-400 text-lg">No questions found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

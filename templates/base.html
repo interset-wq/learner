@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>
+    {% block title %}Poll{% endblock %}
+  </title>
+  <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  {% block css %}{% endblock %}
+  {% block head_js %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col justify-center">
+{% include "components/header.html" %}
+
+<main class="flex-1 bg-white px-4 py-8 flex-col justify-center">
+  {% block content %}{% endblock %}
+
+  {% include "components/pagination.html" %}
+</main>
+
+{% include "components/footer.html" %}
+{% block body_js %}{% endblock %}
+</body>
+</html>

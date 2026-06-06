@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Results{% endblock %}
+
+{% block content %}
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-4xl font-bold py-4">
+            Results of Question:
+            <a class="italic text-blue-600 hover:underline" href="{% url 'core:detail' question.id %}">
+                {{ question.question_text }}
+            </a>
+        </h1>
+
+        <ul class="space-y-3 mt-6">
+            {% for choice in question.choice_set.all %}
+                <li class="bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 flex justify-between items-center">
+                    <span class="text-lg">{{ choice.choice_text }}</span>
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-md font-medium">
+                        {{ choice.votes }} vote{{ choice.votes|pluralize }}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
