@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block header %}
+  {% include "catalog/components/header.html" %}
+{% endblock %}
+
 {% block css %}
   <link rel="stylesheet" href="{% static 'catalog/css/styles.css' %}">
 {% endblock %}

@@ -63,6 +63,13 @@ uv run python create_fake_data.py
 
 All app `base.html` files should extend the root `templates/base.html`.
 
+## Code Style
+
+- **Python**: format with `black`, 4-space indentation
+- **Templates (HTML)**: 2-space indentation
+- **JavaScript**: 2-space indentation
+- **CSS**: 2-space indentation
+
 ## Styling
 
 Uses Tailwind CSS 4.x. Input file: `static/css/input.css`, Output: `static/css/output.css`.
