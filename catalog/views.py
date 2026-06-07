@@ -107,7 +107,7 @@ def renew_book_librarian(request, pk):
         if form.is_valid():
             book_instance.due_back = form.cleaned_data['renewal_date']
             book_instance.save()
-            return HttpResponseRedirect(reverse('all-borrowed'))
+            return HttpResponseRedirect(reverse('catalog:all-borrowed'))
     else:
         proposed_renewal_date = date.today() + timedelta(weeks=3)
         form = RenewBookForm(initial={'renewal_date': proposed_renewal_date})
@@ -134,7 +134,7 @@ class AuthorUpdate(PermissionRequiredMixin, UpdateView):
 
 class AuthorDelete(PermissionRequiredMixin, DeleteView):
     model = Author
-    success_url = reverse_lazy('authors')
+    success_url = reverse_lazy('catalog:authors')
     permission_required = 'catalog.delete_author'
 
     def form_valid(self, form):
@@ -142,7 +142,7 @@ class AuthorDelete(PermissionRequiredMixin, DeleteView):
             self.object.delete()
             return HttpResponseRedirect(self.success_url)
         except Exception:
-            return HttpResponseRedirect(reverse("author-delete", kwargs={"pk": self.object.pk}))
+            return HttpResponseRedirect(reverse("catalog:author-delete", kwargs={"pk": self.object.pk}))
 
 
 class BookCreate(PermissionRequiredMixin, CreateView):
@@ -159,7 +159,7 @@ class BookUpdate(PermissionRequiredMixin, UpdateView):
 
 class BookDelete(PermissionRequiredMixin, DeleteView):
     model = Book
-    success_url = reverse_lazy('books')
+    success_url = reverse_lazy('catalog:books')
     permission_required = 'catalog.delete_book'
 
     def form_valid(self, form):
@@ -167,7 +167,7 @@ class BookDelete(PermissionRequiredMixin, DeleteView):
             self.object.delete()
             return HttpResponseRedirect(self.success_url)
         except Exception:
-            return HttpResponseRedirect(reverse("book-delete", kwargs={"pk": self.object.pk}))
+            return HttpResponseRedirect(reverse("catalog:book-delete", kwargs={"pk": self.object.pk}))
 
 
 class GenreCreate(PermissionRequiredMixin, CreateView):
@@ -184,7 +184,7 @@ class GenreUpdate(PermissionRequiredMixin, UpdateView):
 
 class GenreDelete(PermissionRequiredMixin, DeleteView):
     model = Genre
-    success_url = reverse_lazy('genres')
+    success_url = reverse_lazy('catalog:genres')
     permission_required = 'catalog.delete_genre'
 
 
@@ -202,7 +202,7 @@ class LanguageUpdate(PermissionRequiredMixin, UpdateView):
 
 class LanguageDelete(PermissionRequiredMixin, DeleteView):
     model = Language
-    success_url = reverse_lazy('languages')
+    success_url = reverse_lazy('catalog:languages')
     permission_required = 'catalog.delete_language'
 
 
@@ -220,5 +220,5 @@ class BookInstanceUpdate(PermissionRequiredMixin, UpdateView):
 
 class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
     model = BookInstance
-    success_url = reverse_lazy('bookinstances')
+    success_url = reverse_lazy('catalog:bookinstances')
     permission_required = 'catalog.delete_bookinstance'
