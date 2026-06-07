@@ -1,61 +1,92 @@
 .django-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .django-form .helptext {
-    display: none;
+  display: none;
 }
 
 .django-form label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-    display: inline-block;
-    letter-spacing: 0.2px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+  letter-spacing: 0.2px;
 }
 
-/* 统一匹配 input / textarea / select */
+.dark .django-form label {
+  color: #e5e7eb;
+}
+
 .django-form input,
 .django-form textarea,
 .django-form select {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.6rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    background-color: #f9fafb;
-    box-sizing: border-box;
-    transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  background-color: #f9fafb;
+  color: #1f2937;
+  box-sizing: border-box;
+  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dark .django-form input,
+.dark .django-form textarea,
+.dark .django-form select {
+  border-color: #4b5563;
+  background-color: #374151;
+  color: #f3f4f6;
 }
 
 .django-form input:hover:not(:focus),
 .django-form textarea:hover:not(:focus),
 .django-form select:hover:not(:focus) {
-    border-color: #9ca3af;
-    background-color: #ffffff;
+  border-color: #9ca3af;
+  background-color: #ffffff;
+}
+
+.dark .django-form input:hover:not(:focus),
+.dark .django-form textarea:hover:not(:focus),
+.dark .django-form select:hover:not(:focus) {
+  border-color: #6b7280;
+  background-color: #4b5563;
 }
 
 .django-form input:focus,
 .django-form textarea:focus,
 .django-form select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
-    background-color: #fff;
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+  background-color: #fff;
+}
+
+.dark .django-form input:focus,
+.dark .django-form textarea:focus,
+.dark .django-form select:focus {
+  background-color: #374151;
 }
 
 .django-form .errorlist {
-    list-style: none;
-    padding: 0.75rem 1rem;
-    margin: 0.3rem 0 0;
-    color: #dc2626;
-    font-size: 0.875rem;
-    line-height: 1.4;
-    background-color: #fef2f2;
-    border: 1px solid #fecdd3;
-    border-radius: 0.5rem;
+  list-style: none;
+  padding: 0.75rem 1rem;
+  margin: 0.3rem 0 0;
+  color: #dc2626;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  background-color: #fef2f2;
+  border: 1px solid #fecdd3;
+  border-radius: 0.5rem;
+}
+
+.dark .django-form .errorlist {
+  color: #fca5a5;
+  background-color: #450a0a;
+  border-color: #7f1d1d;
 }

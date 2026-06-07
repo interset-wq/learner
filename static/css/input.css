@@ -16,7 +16,7 @@
   }
 
   .page-title {
-    @apply text-3xl font-bold mb-8;
+    @apply text-3xl font-bold mb-8 text-gray-900 dark:text-white;
   }
 
   .nav-link {

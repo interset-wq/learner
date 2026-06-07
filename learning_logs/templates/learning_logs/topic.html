@@ -5,7 +5,7 @@
 {% block content %}
   <div class="max-w-3xl mx-auto">
     <div class="pb-6 mb-10">
-      <h1 class="text-3xl font-bold text-gray-800 tracking-tight mb-4">Topic: {{ topic }}</h1>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-white tracking-tight mb-4">Topic: {{ topic }}</h1>
       <div class="flex justify-end">
         <a href="{% url 'learning_logs:new_entry' topic.id %}"
            class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 py-3 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg active:shadow-sm">
@@ -16,19 +16,19 @@
 
     <ul class="grid grid-cols-1 gap-6 list-none p-0 m-0">
       {% for entry in topic.entry_set.all %}
-        <li class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0">
+        <li class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0">
           <div class="flex justify-between items-center mb-3">
-            <p class="text-sm text-gray-400 font-medium">{{ entry.date_added|date:'M d, Y H:i' }}</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ entry.date_added|date:'M d, Y H:i' }}</p>
             <a href="{% url 'learning_logs:edit_entry' entry.id %}"
                class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-1.5 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow">
               Edit entry
             </a>
           </div>
-          <p class="text-gray-800 text-lg leading-relaxed">{{ entry.text|linebreaks }}</p>
+          <p class="text-gray-800 dark:text-gray-200 text-lg leading-relaxed">{{ entry.text|linebreaks }}</p>
         </li>
       {% empty %}
-        <li class="col-span-full py-20 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-          <p class="text-gray-400 text-xl">No entries yet.</p>
+        <li class="col-span-full py-20 text-center bg-gray-50 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+          <p class="text-gray-400 dark:text-gray-500 text-xl">No entries yet.</p>
         </li>
       {% endfor %}
     </ul>

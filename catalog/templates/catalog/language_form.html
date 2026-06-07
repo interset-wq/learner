@@ -1,13 +1,12 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
-
-<form action="" method="post">
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Add Language</h1>
+  <form action="" method="post" class="django-form">
     {% csrf_token %}
-    <table>
-    {{ form.as_table }}
-    </table>
-    <input type="submit" value="Submit">
-
-</form>
+    {{ form.as_div }}
+    <button type="submit" class="btn-primary">Submit</button>
+  </form>
+</div>
 {% endblock %}
