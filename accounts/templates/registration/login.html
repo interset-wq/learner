@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+  <link rel="stylesheet" href="{% static 'accounts/css/form.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="max-w-md w-full mx-auto bg-white rounded-xl shadow-lg p-8 my-12 px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Sign In</h1>
+      <p class="mt-2 text-lg text-gray-500">Sign in to your Learning Log account</p>
+    </div>
+
+    {#  {% if form.errors %}#}
+    {#    <ul class="global-errorlist">#}
+    {#      <li>Your username and password didn't match. Please try again.</li>#}
+    {#    </ul>#}
+    {#  {% endif %}#}
+
+    <form method="post" action="{% url 'accounts:login' %}" class="django-form">
+      {% csrf_token %}
+      {{ form.as_div }}
+
+      <button type="submit"
+              class="w-full mt-4 py-3 px-4 border border-transparent rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors font-medium">
+        Login
+      </button>
+    </form>
+
+    <p class="text-sm text-gray-600 text-center mt-6">
+      Don't have an account?
+      <a href="{% url 'accounts:register' %}" class="font-medium text-blue-600 hover:text-blue-800 ml-1">Sign up</a>
+    </p>
+  </div>
+{% endblock %}

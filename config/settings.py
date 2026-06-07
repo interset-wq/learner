@@ -124,3 +124,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+
+# Redirect
+LOGIN_REDIRECT_URL = 'learning_logs:topics' # Default is '/accounts/profile'
+LOGOUT_REDIRECT_URL = '/' # Default is 'accounts/logout'
+LOGIN_URL = 'accounts:login'

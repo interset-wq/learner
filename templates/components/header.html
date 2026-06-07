@@ -1,12 +1,22 @@
 {% load static %}
 
 <header class="bg-green-800 text-white shadow-md py-4 px-6 flex justify-between">
-    <div class="flex items-center gap-1">
-        <img src="{% static 'favicon.ico' %}" alt="logo">
-        <span class="text-xl font-bold"><a href="/">Learning Log</a></span>
-    </div>
-    <nav class="space-x-4">
-        <a href="/" class="hover:underline">Home</a>
-        <a href="{% url "learning_logs:topics" %}" class="hover:underline">Topics</a>
-    </nav>
+  <div class="flex items-center gap-1">
+    <img src="{% static 'favicon.ico' %}" alt="logo">
+    <span class="text-xl font-bold"><a href="/">Learning Log</a></span>
+  </div>
+  <nav class="space-x-4 flex items-center justify-between">
+    <a href="/" class="hover:underline">Home</a>
+    <a href="{% url "learning_logs:topics" %}" class="hover:underline">Topics</a>
+    {% if user.is_authenticated %}
+      <span class="text-sm font-semibold text-gray-400">Hello, {{ user.username }}</span>
+      <form action="{% url 'accounts:logout' %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="hover:underline">Logout</button>
+      </form>
+    {% else %}
+      <a href="{% url 'accounts:login' %}" class="hover:underline">Login</a>
+      <a href="{% url 'accounts:register' %}" class="hover:underline">Register</a>
+    {% endif %}
+  </nav>
 </header>

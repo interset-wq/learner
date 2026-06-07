@@ -1,0 +1,55 @@
+.django-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.django-form .helptext {
+    display: none;
+}
+
+.django-form label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+    letter-spacing: 0.2px;
+}
+
+.django-form input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.6rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    background-color: #f9fafb;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+}
+
+.django-form input:hover:not(:focus) {
+    border-color: #d1d5db;
+    background-color: #ffffff;
+}
+
+.django-form input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    background-color: #fff;
+}
+
+/* 合并字段错误 + 全局表单错误样式 */
+.django-form .errorlist {
+    list-style: none;
+    padding: 0.75rem 1rem;
+    margin: 0.3rem 0 1rem;
+    color: #dc2626;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    background-color: #fef2f2;
+    border: 1px solid #fecdd3;
+    border-radius: 0.5rem;
+}
