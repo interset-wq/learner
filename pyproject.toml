@@ -1,5 +1,5 @@
 [project]
-name = "local_library"
+name = "django-demos"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
