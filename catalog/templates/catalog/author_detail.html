@@ -10,7 +10,7 @@
 
 <dl>
 {% for book in author.book_set.all %}
-  <dt><a href="{% url 'book-detail' book.pk %}">{{book}}</a> ({{book.bookinstance_set.all.count}})</dt>
+  <dt><a href="{% url 'catalog:book-detail' book.pk %}">{{book}}</a> ({{book.bookinstance_set.all.count}})</dt>
   <dd>{{book.summary}}</dd>
   {% empty %}
   <p>This author has no books.</p>
@@ -27,10 +27,10 @@
   <hr>
   <ul class="sidebar-nav">
     {% if perms.catalog.change_author %}
-      <li><a href="{% url 'author-update' author.id %}">Update author</a></li>
+      <li><a href="{% url 'catalog:author-update' author.id %}">Update author</a></li>
     {% endif %}
     {% if not author.book_set.all and perms.catalog.delete_author %}
-      <li><a href="{% url 'author-delete' author.id %}">Delete author</a></li>
+      <li><a href="{% url 'catalog:author-delete' author.id %}">Delete author</a></li>
     {% endif %}
     </ul>
   {% endif %}

@@ -18,7 +18,7 @@ class Genre(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('genre', args=[str(self.id)])
+        return reverse('catalog:genre-detail', args=[str(self.id)])
 
     class Meta:
         constraints = [
@@ -37,7 +37,7 @@ class Language(models.Model):
     )
 
     def get_absolute_url(self):
-        return reverse('language', args=[str(self.id)])
+        return reverse('catalog:language-detail', args=[str(self.id)])
 
     def __str__(self):
         return self.name
@@ -69,7 +69,7 @@ class Book(models.Model):
     display_genre.short_description = 'Genre'
 
     def get_absolute_url(self):
-        return reverse('book', args=[str(self.id)])
+        return reverse('catalog:book-detail', args=[str(self.id)])
 
     def __str__(self):
         return self.title
@@ -107,7 +107,7 @@ class BookInstance(models.Model):
         permissions = (("can_mark_returned", "Set book as returned"),)
 
     def get_absolute_url(self):
-        return reverse('bookinstance', args=[str(self.id)])
+        return reverse('catalog:bookinstance-detail', args=[str(self.id)])
 
     def __str__(self):
         return f'{self.id} ({self.book.title})'
@@ -123,7 +123,7 @@ class Author(models.Model):
         ordering = ['last_name', 'first_name']
 
     def get_absolute_url(self):
-        return reverse('author', args=[str(self.id)])
+        return reverse('catalog:author-detail', args=[str(self.id)])
 
     def __str__(self):
         return f'{self.last_name}, {self.first_name}'

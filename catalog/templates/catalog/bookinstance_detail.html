@@ -25,10 +25,10 @@
   <hr>
   <ul class="sidebar-nav">
     {% if perms.catalog.change_bookinstance %}
-      <li><a href="{% url 'bookinstance-update' bookinstance.id %}">Update BookInstance</a></li>
+      <li><a href="{% url 'catalog:bookinstance-update' bookinstance.id %}">Update BookInstance</a></li>
     {% endif %}
     {% if perms.catalog.delete_bookinstance %}
-      <li><a href="{% url 'bookinstance-delete' bookinstance.id %}">Delete BookInstance</a></li>
+      <li><a href="{% url 'catalog:bookinstance-delete' bookinstance.id %}">Delete BookInstance</a></li>
     {% endif %}
   </ul>
   {% endif %}
