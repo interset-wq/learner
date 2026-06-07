@@ -1,11 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1><a href="{% url 'learning_logs:topic' topic.id %}">{{ topic.text }}</a></h1>
-  <p>Edit entry:</p>
-  <form action="{% url 'learning_logs:edit_entry' entry.id %}" method="post">
-  {% csrf_token %}
+<div class="max-w-3xl mx-auto">
+  <h1 class="page-title">
+    <a href="{% url 'learning_logs:topic' topic.id %}" class="hover:underline">
+      {{ topic.text }}
+    </a>
+  </h1>
+  <p class="mb-4">Edit entry:</p>
+  <form action="{% url 'learning_logs:edit_entry' entry.id %}" method="post" class="django-form">
+    {% csrf_token %}
     {{ form.as_div }}
-    <button>Save changes</button>
+    <div>
+      <button class="btn-primary">Save changes</button>
+    </div>
   </form>
+</div>
 {% endblock %}

@@ -1,54 +1,76 @@
-{% block pagination %}
-  {% if is_paginated %}
-    <div class="pagination flex justify-center mt-6">
-      <div class="flex rounded-md border border-gray-300 overflow-hidden bg-white shadow-sm">
-        <!-- 首页 -->
-        {% if page_obj.has_previous %}
-          <a href="{{ request.path }}?page=1"
-             class="px-3 py-2 text-sm border-r border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">首页</a>
-        {% else %}
-          <span
-              class="px-3 py-2 text-sm border-r border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed">首页</span>
-        {% endif %}
+{% if is_paginated %}
+  <div class="pagination flex flex-wrap justify-center items-center mt-8 gap-3">
+    <!-- 标准分页按钮组 -->
+    <div class="flex rounded-lg border border-gray-300 overflow-hidden bg-white shadow-sm">
+      <!-- 首页 -->
+      {% if page_obj.has_previous %}
+        <a href="?page=1"
+           class="px-4 py-2 text-sm border-r border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200">首页</a>
+      {% else %}
+        <span
+            class="px-4 py-2 text-sm border-r border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed select-none">首页</span>
+      {% endif %}
 
-        <!-- 上一页 -->
-        {% if page_obj.has_previous %}
-          <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}"
-             class="px-3 py-2 text-sm border-r border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">上一页</a>
-        {% else %}
-          <span
-              class="px-3 py-2 text-sm border-r border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed">上一页</span>
-        {% endif %}
+      <!-- 上一页 -->
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"
+           class="px-4 py-2 text-sm border-r border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200">上一页</a>
+      {% else %}
+        <span
+            class="px-4 py-2 text-sm border-r border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed select-none">上一页</span>
+      {% endif %}
 
-        <!-- 页码：当前前后各2页 -->
-        {% for n in paginator.page_range %}
-          {% if n == page_obj.number %}
-            <span class="px-3 py-2 text-sm border-r border-gray-300 bg-blue-600 text-white">{{ n }}</span>
-          {% elif n > page_obj.number|add:-2 and n < page_obj.number|add:2 %}
-            <a href="{{ request.path }}?page={{ n }}"
-               class="px-3 py-2 text-sm border-r border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">{{ n }}</a>
-          {% elif n == page_obj.number|add:-3 or n == page_obj.number|add:3 %}
-            <span class="px-3 py-2 text-sm border-r border-gray-300 text-gray-500">…</span>
-          {% endif %}
-        {% endfor %}
-
-        <!-- 下一页 -->
-        {% if page_obj.has_next %}
-          <a href="{{ request.path }}?page={{ page_obj.next_page_number }}"
-             class="px-3 py-2 text-sm border-r border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">下一页</a>
-        {% else %}
-          <span
-              class="px-3 py-2 text-sm border-r border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed">下一页</span>
+      <!-- 页码 -->
+      {% for n in paginator.page_range %}
+        {% if n == page_obj.number %}
+          <span class="px-4 py-2 text-sm border-r border-gray-300 bg-blue-600 text-white select-none">{{ n }}</span>
+        {% elif n > page_obj.number|add:-2 and n < page_obj.number|add:2 %}
+          <a href="?page={{ n }}"
+             class="px-4 py-2 text-sm border-r border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200">{{ n }}</a>
+        {% elif n == page_obj.number|add:-3 or n == page_obj.number|add:3 %}
+          <span class="px-4 py-2 text-sm border-r border-gray-300 text-gray-500 select-none">…</span>
         {% endif %}
+      {% endfor %}
 
-        <!-- 尾页 -->
-        {% if page_obj.has_next %}
-          <a href="{{ request.path }}?page={{ paginator.num_pages }}"
-             class="px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">尾页</a>
-        {% else %}
-          <span class="px-3 py-2 text-sm bg-gray-100 text-gray-400 cursor-not-allowed">尾页</span>
-        {% endif %}
-      </div>
+      <!-- 下一页 -->
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"
+           class="px-4 py-2 text-sm border-r border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200">下一页</a>
+      {% else %}
+        <span
+            class="px-4 py-2 text-sm border-r border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed select-none">下一页</span>
+      {% endif %}
+
+      <!-- 尾页 -->
+      {% if page_obj.has_next %}
+        <a href="?page={{ paginator.num_pages }}"
+           class="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200">尾页</a>
+      {% else %}
+        <span class="px-4 py-2 text-sm bg-gray-100 text-gray-400 cursor-not-allowed select-none">尾页</span>
+      {% endif %}
     </div>
-  {% endif %}
-{% endblock %}
+
+    <!-- 跳转到指定页码 -->
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-gray-600">前往</span>
+      <input type="number"
+             class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+             min="1" max="{{ paginator.num_pages }}"
+             value="{{ page_obj.number }}"
+             onkeydown="if(event.key === 'Enter') jumpPage(this.value)">
+      <span class="text-sm text-gray-600">/ {{ paginator.num_pages }} 页</span>
+    </div>
+  </div>
+
+  <script>
+      function jumpPage(page) {
+          const total = {{ paginator.num_pages }};
+          const target = parseInt(page, 10);
+          if (!isNaN(target) && target >= 1 && target <= total) {
+              const url = new URL(window.location.href);
+              url.searchParams.set('page', target);
+              window.location.href = url.href;
+          }
+      }
+  </script>
+{% endif %}

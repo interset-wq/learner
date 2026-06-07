@@ -9,16 +9,23 @@
   </title>
   <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <link rel="stylesheet" href="{% static 'css/form.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   {% block css %}{% endblock %}
   {% block head_js %}{% endblock %}
 </head>
-<body class="min-h-screen flex flex-col justify-center">
+<body class="min-h-screen flex flex-col bg-gray-50">
 {% include "components/header.html" %}
 
-<main class="flex-1 bg-white px-4 py-8 flex-col justify-center">
+<main class="flex-1 bg-white px-4 py-8">
   {% block content %}{% endblock %}
 
-  {% include "components/pagination.html" %}
+  {% block pagination %}
+    {% include "components/pagination.html" %}
+  {% endblock %}
 </main>
 
 {% include "components/footer.html" %}
