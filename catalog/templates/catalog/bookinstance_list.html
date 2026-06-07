@@ -1,20 +1,42 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
-    <h1>Book Copies in Library</h1>
+<div class="max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Book Copies</h1>
+    {% if perms.catalog.add_bookinstance %}
+      <a href="{% url 'catalog:bookinstance-create' %}" class="btn-primary">Add Copy</a>
+    {% endif %}
+  </div>
 
-    <ul>
+  {% if bookinstance_list %}
+    <ul class="space-y-3">
       {% for bookinst in bookinstance_list %}
-      <li class="{% if bookinst.is_overdue %}text-danger{% endif %}">
-        <a href="{% url 'catalog:bookinstance-detail' bookinst.pk %}">{{bookinst.book.title}}</a> ({{ bookinst.get_status_display }})
-        {% if bookinst.status != 'a' %}: {{ bookinst.due_back }} {% endif %}
-        {% if bookinst.status == 'o' %}
-          {% if user.is_staff %}- {{ bookinst.borrower }}{% endif %} {% if perms.catalog.can_mark_returned %}- <a href="{% url 'catalog:renew-book-librarian' bookinst.id %}">Renew</a> {% endif %}
-        {% endif %}
-      </li>
-      {% empty %}
-      <li>There are no book copies available.</li>
+        <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 {% if bookinst.is_overdue %}border-l-4 border-l-red-500{% endif %}">
+          <div>
+            <a href="{% url 'catalog:bookinstance-detail' bookinst.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+              {{ bookinst.book.title }}
+            </a>
+            <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">({{ bookinst.get_status_display }})</span>
+            {% if bookinst.status != 'a' %}
+              <span class="text-gray-500 dark:text-gray-400 text-sm">- Due: {{ bookinst.due_back }}</span>
+            {% endif %}
+          </div>
+          <div class="flex items-center gap-3 text-sm">
+            {% if bookinst.status == 'o' %}
+              {% if user.is_staff %}
+                <span class="text-gray-500 dark:text-gray-400">{{ bookinst.borrower }}</span>
+              {% endif %}
+              {% if perms.catalog.can_mark_returned %}
+                <a href="{% url 'catalog:renew-book-librarian' bookinst.id %}" class="text-blue-600 dark:text-blue-400 hover:underline">Renew</a>
+              {% endif %}
+            {% endif %}
+          </div>
+        </li>
       {% endfor %}
     </ul>
-
+  {% else %}
+    <p class="text-gray-500 dark:text-gray-400">There are no book copies available.</p>
+  {% endif %}
+</div>
 {% endblock %}

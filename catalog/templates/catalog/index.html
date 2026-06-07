@@ -1,32 +1,45 @@
 {% extends "catalog/base.html" %}
+{% load static %}
 
 {% block content %}
-<h1>Local Library Home</h1>
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Catalog Home</h1>
 
-<p>Welcome to <em>LocalLibrary</em>, a very basic Django website developed as a <a href="https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Tutorial_local_library_website">tutorial example</a> on the Mozilla Developer Network.</p>
-<p>The tutorial demonstrates how to create a Django skeleton website and application, define URL mappings, views (including Generic List and Detail Views), models and templates.</p>
+  <p class="text-gray-600 dark:text-gray-300 mb-6">
+    Welcome to the <em class="font-semibold">Local Library</em>, a Django demo application.
+  </p>
 
+  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4 mt-10">UML Models</h2>
+  <p class="text-gray-600 dark:text-gray-300 mb-4">An UML diagram of the site's Django model structure:</p>
 
-<h2>UML Models</h2>
-<p>An UML diagram of the site's Django model structure is shown below. </p>
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 mb-10">
+    <img src="{% static 'catalog/images/local_library_model_uml.png' %}" alt="UML Model" class="max-w-full h-auto">
+  </div>
 
-<div>
-{% load static %}
-<img src="{% static 'catalog/images/local_library_model_uml.png' %}" alt="My image" width="600px">
-</div>  
+  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Dynamic Content</h2>
+  <p class="text-gray-600 dark:text-gray-300 mb-4">The library has the following record counts:</p>
 
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
+      <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ num_books }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Books</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
+      <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ num_instances }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Copies</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
+      <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ num_instances_available }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Available</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
+      <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ num_authors }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Authors</p>
+    </div>
+  </div>
 
-<h2>Dynamic content</h2>
-
-<p>The library has the following record counts:</p>
-<ul>
-<li><strong>Books:</strong> {{ num_books }}</li>
-<li><strong>Copies:</strong> {{ num_instances }}</li>
-<li><strong>Copies available:</strong> {{ num_instances_available }}</li>
-<li><strong>Authors:</strong> {{ num_authors }}</li>
-</ul>
-
-
-<p>You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.</p>
-
+  <p class="text-gray-500 dark:text-gray-400 text-sm">
+    You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.
+  </p>
+</div>
 {% endblock %}

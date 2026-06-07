@@ -1,25 +1,26 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Genres</h1>
+    {% if perms.catalog.add_genre %}
+      <a href="{% url 'catalog:genre-create' %}" class="btn-primary">Add Genre</a>
+    {% endif %}
+  </div>
 
-<h1>Genre List</h1>
-
-{% if genre_list %}
-  <ul>
-
-  {% for genre in genre_list %}
-    <li>
-      <a href="{{ genre.get_absolute_url }}">
-      {{ genre }}
-      </a>
-    </li>
-  {% endfor %}
-
- </ul>
-{% else %}
-  <p>There are no genres available.</p>
-{% endif %}
-
-
+  {% if genre_list %}
+    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for genre in genre_list %}
+        <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200">
+          <a href="{{ genre.get_absolute_url }}" class="block text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+            {{ genre.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-500 dark:text-gray-400">There are no genres available.</p>
+  {% endif %}
+</div>
 {% endblock %}
-

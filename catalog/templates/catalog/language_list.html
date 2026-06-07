@@ -1,18 +1,24 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Languages</h1>
+    {% if perms.catalog.add_language %}
+      <a href="{% url 'catalog:language-create' %}" class="btn-primary">Add Language</a>
+    {% endif %}
+  </div>
 
-<h1>Language List</h1>
-
-<ul>
-  {% for language in language_list %}
-  <li>
-    <a href="{{ language.get_absolute_url }}">{{ language }}</a>
-  </li>
-  {% empty %}
-  <li>There are no languages available.</li>
-  {% endfor %}
-</ul>
-
+  <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for language in language_list %}
+      <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200">
+        <a href="{{ language.get_absolute_url }}" class="block text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+          {{ language.name }}
+        </a>
+      </li>
+    {% empty %}
+      <li class="text-gray-500 dark:text-gray-400">There are no languages available.</li>
+    {% endfor %}
+  </ul>
+</div>
 {% endblock %}
-

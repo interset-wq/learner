@@ -1,20 +1,22 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
-    <h1>Borrowed books</h1>
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Borrowed Books</h1>
 
-    {% if bookinstance_list %}
-    <ul>
-
-      {% for bookinst in bookinstance_list %} 
-      <li class="{% if bookinst.is_overdue %}text-danger{% endif %}">
-        <a href="{% url 'catalog:book-detail' bookinst.book.pk %}">{{bookinst.book.title}}</a> ({{ bookinst.due_back }})        
-      </li>
+  {% if bookinstance_list %}
+    <ul class="space-y-3">
+      {% for bookinst in bookinstance_list %}
+        <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 {% if bookinst.is_overdue %}border-l-4 border-l-red-500{% endif %}">
+          <a href="{% url 'catalog:book-detail' bookinst.book.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+            {{ bookinst.book.title }}
+          </a>
+          <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">(Due: {{ bookinst.due_back }})</span>
+        </li>
       {% endfor %}
     </ul>
-
-    {% else %}
-      <p>There are no books borrowed.</p>
-    {% endif %}       
+  {% else %}
+    <p class="text-gray-500 dark:text-gray-400">There are no books borrowed.</p>
+  {% endif %}
+</div>
 {% endblock %}
-

@@ -1,36 +1,49 @@
 {% extends "catalog/base.html" %}
 
 {% block content %}
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">{{ bookinstance.book.title }}</h1>
 
-<h1>BookInstance: {{ bookinstance.book.title }}</h1>
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
+    <dl class="space-y-4">
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Author</dt>
+        <dd class="mt-1">
+          <a href="{{ bookinstance.book.author.get_absolute_url }}" class="text-blue-600 dark:text-blue-400 hover:underline">
+            {{ bookinstance.book.author }}
+          </a>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Imprint</dt>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ bookinstance.imprint }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
+        <dd class="mt-1">
+          <span class="px-2 py-1 text-xs font-medium rounded-full
+            {% if bookinstance.status == 'a' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+            {% elif bookinstance.status == 'd' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+            {% elif bookinstance.status == 'o' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+            {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+            {{ bookinstance.get_status_display }}
+          </span>
+          {% if bookinstance.status != 'a' %}
+            <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">(Due: {{ bookinstance.due_back }})</span>
+          {% endif %}
+        </dd>
+      </div>
+    </dl>
 
-<p><strong>Author:</strong> <a href="{{ bookinstance.book.author.get_absolute_url }}">{{ bookinstance.book.author }}</a></p>
-
-<p><strong>Imprint:</strong> {{ bookinstance.imprint }}</p>
-<p><strong>Status:</strong> {{ bookinstance.get_status_display }} {% if bookinstance.status != 'a' %} (Due: {{bookinstance.due_back}}){% endif %}</p>
-
-<hr>
-<ul>
-  <li>
-    <a href="{{ bookinstance.book.get_absolute_url }}">All copies</a></p>
-  </li>
-</ul>
-{% endblock %}
-
-
-{% block sidebar %}
-  {{ block.super }}
-
-  {% if perms.catalog.change_bookinstance or perms.catalog.delete_bookinstance %}
-  <hr>
-  <ul class="sidebar-nav">
-    {% if perms.catalog.change_bookinstance %}
-      <li><a href="{% url 'catalog:bookinstance-update' bookinstance.id %}">Update BookInstance</a></li>
-    {% endif %}
-    {% if perms.catalog.delete_bookinstance %}
-      <li><a href="{% url 'catalog:bookinstance-delete' bookinstance.id %}">Delete BookInstance</a></li>
-    {% endif %}
-  </ul>
-  {% endif %}
-
+    <div class="flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <a href="{{ bookinstance.book.get_absolute_url }}" class="btn-secondary text-sm">All Copies</a>
+      {% if perms.catalog.change_bookinstance %}
+        <a href="{% url 'catalog:bookinstance-update' bookinstance.id %}" class="btn-secondary text-sm">Update</a>
+      {% endif %}
+      {% if perms.catalog.delete_bookinstance %}
+        <a href="{% url 'catalog:bookinstance-delete' bookinstance.id %}" class="btn-danger text-sm">Delete</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}
