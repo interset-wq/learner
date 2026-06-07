@@ -12,8 +12,9 @@
       </div>
 
       <nav class="hidden md:flex items-center space-x-6">
-        <a href="{% url 'learning_logs:index' %}" class="nav-link">Home</a>
-        <a href="{% url 'learning_logs:topics' %}" class="nav-link">Topics</a>
+        <a href="{% url 'catalog:index' %}" class="nav-link">Catalog</a>
+        <a href="{% url 'learning_logs:index' %}" class="nav-link">Learning Logs</a>
+        <a href="{% url 'core:index' %}" class="nav-link">Polls</a>
       </nav>
     </div>
 
@@ -49,8 +50,9 @@
   </div>
 
   <div id="mobileMenu" class="md:hidden hidden mt-4 pt-4 border-t border-green-700 flex flex-col space-y-3 transition-all duration-300">
-    <a href="{% url 'learning_logs:index' %}" class="nav-link-mobile">Home</a>
-    <a href="{% url 'learning_logs:topics' %}" class="nav-link-mobile">Topics</a>
+    <a href="{% url 'catalog:index' %}" class="nav-link-mobile">Catalog</a>
+    <a href="{% url 'learning_logs:index' %}" class="nav-link-mobile">Learning Logs</a>
+    <a href="{% url 'core:index' %}" class="nav-link-mobile">Polls</a>
 
     {% if user.is_authenticated %}
       <span class="py-1 px-2 text-sm font-semibold text-gray-300">Hello, {{ user.username }}</span>
