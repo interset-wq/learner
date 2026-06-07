@@ -35,7 +35,6 @@ class QuestionModelTest(TestCase):
 
 def create_question(question_text, days):
     time = timezone.now() + timedelta(days=days)
-    # 创建实例对象并自动commit
     question = Question.objects.create(question_text=question_text, pub_date=time)
     return question
 
@@ -67,5 +66,4 @@ class QuestionIndexViewTest(TestCase):
         question1 = create_question('Past question text1', days=-30)
         question2 = create_question('Past question text2', days=-5)
         response = self.client.get(reverse('core:index'))
-        # 列表顺序按照追加顺序的倒序
         self.assertQuerySetEqual(response.context['latest_question_list'], [question2, question1])

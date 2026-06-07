@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'learning_logs',
     'catalog',
     'accounts',
-    # 'core',
+    'core',
     # Django
     'django.contrib.admin',
     'django.contrib.auth',
