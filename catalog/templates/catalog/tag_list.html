@@ -1,0 +1,26 @@
+{% extends "catalog/base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Tags</h1>
+    {% if perms.catalog.add_tag %}
+      <a href="{% url 'catalog:tag-create' %}" class="btn-primary">Add Tag</a>
+    {% endif %}
+  </div>
+
+  {% if tag_list %}
+    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for tag in tag_list %}
+        <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200">
+          <a href="{{ tag.get_absolute_url }}" class="block text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+            {{ tag.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-500 dark:text-gray-400">There are no tags available.</p>
+  {% endif %}
+</div>
+{% endblock %}

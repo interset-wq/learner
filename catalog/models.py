@@ -1,4 +1,3 @@
-import uuid
 from datetime import date
 
 from django.conf import settings
@@ -52,21 +51,44 @@ class Language(models.Model):
         ]
 
 
+class Tag(models.Model):
+    name = models.CharField(
+        max_length=200,
+        unique=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('catalog:tag-detail', args=[str(self.id)])
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                Lower('name'),
+                name='tag_name_case_insensitive_unique',
+                violation_error_message="Tag already exists (case insensitive match)"
+            ),
+        ]
+
+
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.ForeignKey('Author', on_delete=models.RESTRICT, null=True)
     summary = models.TextField(max_length=1000)
     isbn = models.CharField('ISBN', max_length=13, unique=True)
-    genre = models.ManyToManyField(Genre)
+    genre = models.ForeignKey('Genre', on_delete=models.SET_NULL, null=True, blank=True)
     language = models.ForeignKey('Language', on_delete=models.SET_NULL, null=True)
+    tags = models.ManyToManyField('Tag', blank=True)
 
     class Meta:
         ordering = ['title', 'author']
 
-    def display_genre(self):
-        return ', '.join([genre.name for genre in self.genre.all()[:3]])
+    def display_tags(self):
+        return ', '.join([tag.name for tag in self.tags.all()[:3]])
 
-    display_genre.short_description = 'Genre'
+    display_tags.short_description = 'Tags'
 
     def get_absolute_url(self):
         return reverse('catalog:book-detail', args=[str(self.id)])
@@ -76,7 +98,6 @@ class Book(models.Model):
 
 
 class BookInstance(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     book = models.ForeignKey('Book', on_delete=models.RESTRICT, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
@@ -113,17 +134,36 @@ class BookInstance(models.Model):
         return f'{self.id} ({self.book.title})'
 
 
+class Record(models.Model):
+    book_instance = models.ForeignKey('BookInstance', on_delete=models.RESTRICT)
+    borrower = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    borrow_date = models.DateField()
+    return_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-borrow_date']
+
+    def get_absolute_url(self):
+        return reverse('catalog:record-detail', args=[str(self.id)])
+
+    def __str__(self):
+        return f'Record {self.id}: {self.book_instance}'
+
+
 class Author(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    name = models.CharField(max_length=200, blank=True)
+    first_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     date_of_death = models.DateField('died', null=True, blank=True)
 
     class Meta:
-        ordering = ['last_name', 'first_name']
+        ordering = ['name']
 
     def get_absolute_url(self):
         return reverse('catalog:author-detail', args=[str(self.id)])
 
     def __str__(self):
-        return f'{self.last_name}, {self.first_name}'
+        return self.name or f'{self.last_name}, {self.first_name}'

@@ -1,9 +1,10 @@
 from django.contrib import admin
 
-from .models import Author, Genre, Book, BookInstance, Language
+from .models import Author, Genre, Book, BookInstance, Language, Tag, Record
 
 admin.site.register(Genre)
 admin.site.register(Language)
+admin.site.register(Tag)
 
 
 class BooksInline(admin.TabularInline):
@@ -12,8 +13,8 @@ class BooksInline(admin.TabularInline):
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'date_of_birth', 'date_of_death')
-    fields = ['first_name', 'last_name', ('date_of_birth', 'date_of_death')]
+    list_display = ('name', 'date_of_birth', 'date_of_death')
+    fields = ['name', ('date_of_birth', 'date_of_death')]
     inlines = [BooksInline]
 
 
@@ -22,7 +23,7 @@ class BooksInstanceInline(admin.TabularInline):
 
 
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'display_genre')
+    list_display = ('title', 'author', 'genre')
     inlines = [BooksInstanceInline]
 
 
@@ -36,9 +37,19 @@ class BookInstanceAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('book', 'imprint', 'id')
+            'fields': ('book', 'imprint')
         }),
         ('Availability', {
             'fields': ('status', 'due_back', 'borrower')
         }),
     )
+
+
+class RecordInline(admin.TabularInline):
+    model = Record
+
+
+@admin.register(Record)
+class RecordAdmin(admin.ModelAdmin):
+    list_display = ('book_instance', 'borrower', 'borrow_date', 'return_date')
+    list_filter = ('borrow_date', 'return_date')

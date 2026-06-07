@@ -1,0 +1,43 @@
+{% extends "catalog/base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Record #{{ record.id }}</h1>
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
+    <dl class="space-y-4">
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Book Instance</dt>
+        <dd class="mt-1">
+          <a href="{{ record.book_instance.get_absolute_url }}" class="text-blue-600 dark:text-blue-400 hover:underline">
+            {{ record.book_instance }}
+          </a>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Borrower</dt>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ record.borrower }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Borrow Date</dt>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ record.borrow_date }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Return Date</dt>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ record.return_date|default:"Not returned" }}</dd>
+      </div>
+    </dl>
+
+    {% if perms.catalog.change_record or perms.catalog.delete_record %}
+      <div class="flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+        {% if perms.catalog.change_record %}
+          <a href="{% url 'catalog:record-update' record.id %}" class="btn-secondary text-sm">Update Record</a>
+        {% endif %}
+        {% if perms.catalog.delete_record %}
+          <a href="{% url 'catalog:record-delete' record.id %}" class="btn-danger text-sm">Delete Record</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

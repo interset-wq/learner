@@ -23,3 +23,11 @@ class RenewBookForm(forms.Form):
 
         # Remember to always return the cleaned data.
         return data
+
+
+class BookSearchForm(forms.Form):
+    q = forms.CharField(
+        required=False,
+        label='',
+        widget=forms.TextInput(attrs={'placeholder': 'Search by title, author, or ISBN...'}),
+    )

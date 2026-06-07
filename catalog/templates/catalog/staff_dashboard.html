@@ -1,0 +1,106 @@
+{% extends "catalog/base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Staff Dashboard</h1>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <a href="{% url 'catalog:books' %}" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all text-center">
+      <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ num_books }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Books</p>
+    </a>
+    <a href="{% url 'catalog:authors' %}" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all text-center">
+      <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ num_authors }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Authors</p>
+    </a>
+    <a href="{% url 'catalog:genres' %}" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all text-center">
+      <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ num_genres }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Genres</p>
+    </a>
+    <a href="{% url 'catalog:tags' %}" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all text-center">
+      <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ num_tags }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Tags</p>
+    </a>
+    <a href="{% url 'catalog:bookinstances' %}" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all text-center">
+      <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ num_instances }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Total Copies</p>
+    </a>
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center">
+      <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ num_available }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Available</p>
+    </div>
+    <a href="{% url 'catalog:all-borrowed' %}" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all text-center">
+      <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{{ num_borrowed }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Borrowed</p>
+    </a>
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center">
+      <p class="text-3xl font-bold text-red-600 dark:text-red-400">{{ num_overdue }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Overdue</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2">
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Borrowed</h2>
+          <a href="{% url 'catalog:all-borrowed' %}" class="text-sm text-green-600 dark:text-green-400 hover:underline">View All</a>
+        </div>
+        <div class="p-4">
+          {% for inst in recent_borrowed %}
+            <div class="flex items-center justify-between py-3 {% if not forloop.last %}border-b border-gray-100 dark:border-gray-700{% endif %}">
+              <div>
+                <a href="{% url 'catalog:book-detail' inst.book.pk %}" class="text-green-600 dark:text-green-400 hover:underline font-medium">
+                  {{ inst.book.title }}
+                </a>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {{ inst.borrower }} &middot; Due: {{ inst.due_back }}
+                  {% if inst.is_overdue %}
+                    <span class="text-red-600 dark:text-red-400 font-medium">Overdue</span>
+                  {% endif %}
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <a href="{% url 'catalog:renew-book-librarian' inst.id %}" class="text-xs px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 transition-colors">Renew</a>
+                <a href="{% url 'catalog:return-book' inst.id %}" class="text-xs px-3 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-colors">Return</a>
+              </div>
+            </div>
+          {% empty %}
+            <p class="text-gray-500 dark:text-gray-400 text-center py-4">No borrowed books.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Quick Actions</h2>
+        </div>
+        <div class="p-4 flex flex-col gap-2">
+          {% if perms.catalog.add_book %}
+            <a href="{% url 'catalog:book-create' %}" class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors text-center">Add Book</a>
+          {% endif %}
+          {% if perms.catalog.add_author %}
+            <a href="{% url 'catalog:author-create' %}" class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors text-center">Add Author</a>
+          {% endif %}
+          {% if perms.catalog.add_genre %}
+            <a href="{% url 'catalog:genre-create' %}" class="px-4 py-2 rounded-lg bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-sm font-medium hover:bg-green-200 dark:hover:bg-green-800 transition-colors text-center">Add Genre</a>
+          {% endif %}
+          {% if perms.catalog.add_language %}
+            <a href="{% url 'catalog:language-create' %}" class="px-4 py-2 rounded-lg bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-sm font-medium hover:bg-green-200 dark:hover:bg-green-800 transition-colors text-center">Add Language</a>
+          {% endif %}
+          {% if perms.catalog.add_tag %}
+            <a href="{% url 'catalog:tag-create' %}" class="px-4 py-2 rounded-lg bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-sm font-medium hover:bg-green-200 dark:hover:bg-green-800 transition-colors text-center">Add Tag</a>
+          {% endif %}
+          {% if perms.catalog.add_bookinstance %}
+            <a href="{% url 'catalog:bookinstance-create' %}" class="px-4 py-2 rounded-lg bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-sm font-medium hover:bg-green-200 dark:hover:bg-green-800 transition-colors text-center">Add Copy</a>
+          {% endif %}
+          <a href="{% url 'catalog:records' %}" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center">All Records</a>
+          <a href="{% url 'catalog:all-borrowed' %}" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center">All Borrowed</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
