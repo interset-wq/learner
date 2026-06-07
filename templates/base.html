@@ -30,7 +30,9 @@
   {% endblock %}
 </main>
 
-{% include "components/footer.html" %}
+{% block footer %}
+  {% include "components/footer.html" %}
+{% endblock %}
 {% block body_js %}{% endblock %}
 
 <script>
