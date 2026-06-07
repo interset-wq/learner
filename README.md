@@ -1,4 +1,4 @@
-# learning_log
+# local_library
 A Django project which is simple and useful to learn the features of Django.
 
 ```bash

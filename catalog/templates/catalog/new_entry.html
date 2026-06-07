@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <h1 class="page-title">
+    <a href="{% url 'learning_logs:topic' topic.id %}" class="hover:underline">{{ topic.text }}</a>
+  </h1>
+  <p class="mb-4">Create a new entry:</p>
+  <form action="{% url 'learning_logs:new_entry' topic.id %}" method="post" class="django-form">
+    {% csrf_token %}
+    {{ form.as_div }}
+    <div>
+      <button class="btn-primary">Add entry</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
