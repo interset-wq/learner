@@ -1,0 +1,163 @@
+{% load static %}
+<header class="bg-green-800 text-white shadow-md py-4 px-6 relative">
+  <div class="flex justify-between items-center">
+    <!-- Logo & Home -->
+    <div class="flex items-center gap-2">
+      <img src="{% static 'favicon.ico' %}" alt="logo" class="w-6 h-6 object-contain">
+      <a href="{% url 'index' %}" class="text-xl font-bold hover:text-gray-200">Local Library</a>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:flex items-center gap-3" aria-label="Main Navigation">
+      <!-- Main: left-aligned dropdown -->
+      <div class="relative">
+        <button class="py-1 px-2 hover:bg-green-700 rounded bg-transparent border-none cursor-pointer">Main ▾</button>
+        <nav class="absolute left-0 top-full mt-2 hidden z-50 bg-green-900 rounded-md shadow-lg py-2" aria-label="Main Submenu">
+          <a href="{% url 'bookinstances' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Book copies</a>
+          <a href="{% url 'books' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Books</a>
+          <a href="{% url 'authors' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Authors</a>
+          <a href="{% url 'genres' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Genres</a>
+          <a href="{% url 'languages' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Languages</a>
+        </nav>
+      </div>
+
+      <!-- User: right-aligned dropdown -->
+      <div class="relative">
+        <button class="py-1 px-2 hover:bg-green-700 rounded bg-transparent border-none cursor-pointer">User ▾</button>
+        <nav class="absolute right-0 top-full mt-2 hidden z-50 bg-green-900 rounded-md shadow-lg py-2" aria-label="User Submenu">
+          {% if user.is_authenticated %}
+            <span class="block py-2 px-4 text-gray-300 whitespace-nowrap">User: {{ user.get_username }}</span>
+            <a href="{% url 'my-borrowed' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">My borrowed</a>
+            <a href="{% url 'accounts:logout' %}?next={{request.path}}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Logout</a>
+          {% else %}
+            <a href="{% url 'accounts:login' %}?next={{request.path}}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Login</a>
+          {% endif %}
+        </nav>
+      </div>
+
+      <!-- Staff: right-aligned dropdown -->
+      {% if user.is_staff %}
+      <div class="relative">
+        <button class="py-1 px-2 hover:bg-green-700 rounded bg-transparent border-none cursor-pointer">Staff ▾</button>
+        <nav class="absolute right-0 top-full mt-2 hidden z-50 bg-green-900 rounded-md shadow-lg py-2" aria-label="Staff Submenu">
+          <span class="block py-2 px-4 text-gray-300 whitespace-nowrap">Staff</span>
+          <a href="{% url 'all-borrowed' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Borrowed</a>
+          {% if perms.catalog.add_genre %}
+            <a href="{% url 'genre-create' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Create genre</a>
+          {% endif %}
+          {% if perms.catalog.add_language %}
+            <a href="{% url 'language-create' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Create language</a>
+          {% endif %}
+          {% if perms.catalog.add_author %}
+            <a href="{% url 'author-create' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Create author</a>
+          {% endif %}
+          {% if perms.catalog.add_book %}
+            <a href="{% url 'book-create' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Create book</a>
+          {% endif %}
+          {% if perms.catalog.add_bookinstance %}
+            <a href="{% url 'bookinstance-create' %}" class="block py-2 px-4 hover:bg-green-700 whitespace-nowrap">Create BookInstance</a>
+          {% endif %}
+        </nav>
+      </div>
+      {% endif %}
+    </nav>
+
+    <!-- Hamburger Button: fixed 3-line → X animation -->
+    <button id="hamburgerBtn" class="md:hidden w-8 h-8 relative focus:outline-none">
+      <span class="absolute left-0 top-1 w-full h-0.5 bg-white rounded transition-all duration-300"></span>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-white rounded transition-all duration-300"></span>
+      <span class="absolute left-0 bottom-1 w-full h-0.5 bg-white rounded transition-all duration-300"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu: no border-t, no line leak -->
+  <div id="mobileMenu" class="md:hidden overflow-hidden transition-all duration-300 max-h-0 flex flex-col">
+    <nav aria-label="Mobile Navigation">
+      <a href="{% url 'index' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Home</a>
+      <a href="{% url 'bookinstances' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Book copies</a>
+      <a href="{% url 'books' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Books</a>
+      <a href="{% url 'authors' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Authors</a>
+      <a href="{% url 'genres' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Genres</a>
+      <a href="{% url 'languages' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Languages</a>
+
+      {% if user.is_authenticated %}
+        <span class="block py-2 px-4 text-gray-300">User: {{ user.get_username }}</span>
+        <a href="{% url 'my-borrowed' %}" class="block py-2 px-4 hover:bg-green-700 rounded">My borrowed</a>
+        <a href="{% url 'accounts:logout' %}?next={{request.path}}" class="block py-2 px-4 hover:bg-green-700 rounded">Logout</a>
+      {% else %}
+        <a href="{% url 'accounts:login' %}?next={{request.path}}" class="block py-2 px-4 hover:bg-green-700 rounded">Login</a>
+      {% endif %}
+
+      {% if user.is_staff %}
+        <span class="block py-2 px-4 text-gray-300">Staff</span>
+        <a href="{% url 'all-borrowed' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Borrowed</a>
+        {% if perms.catalog.add_genre %}
+          <a href="{% url 'genre-create' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Create genre</a>
+        {% endif %}
+        {% if perms.catalog.add_language %}
+          <a href="{% url 'language-create' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Create language</a>
+        {% endif %}
+        {% if perms.catalog.add_author %}
+          <a href="{% url 'author-create' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Create author</a>
+        {% endif %}
+        {% if perms.catalog.add_book %}
+          <a href="{% url 'book-create' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Create book</a>
+        {% endif %}
+        {% if perms.catalog.add_bookinstance %}
+          <a href="{% url 'bookinstance-create' %}" class="block py-2 px-4 hover:bg-green-700 rounded">Create BookInstance</a>
+        {% endif %}
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Desktop dropdown toggle
+  const dropdowns = document.querySelectorAll('.relative > button')
+  dropdowns.forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation()
+      const subNav = btn.nextElementSibling
+      subNav.classList.toggle('hidden')
+      document.querySelectorAll('.relative > nav').forEach(nav => {
+        if (nav !== subNav) nav.classList.add('hidden')
+      })
+    })
+  })
+
+  // Close all dropdown when clicking outside
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.relative > nav').forEach(nav => {
+      nav.classList.add('hidden')
+    })
+  })
+
+  // Hamburger ↔ X animation
+  const hamburgerBtn = document.getElementById('hamburgerBtn')
+  const mobileMenu = document.getElementById('mobileMenu')
+  const lines = hamburgerBtn.querySelectorAll('span')
+  let menuOpen = false
+
+  hamburgerBtn.addEventListener('click', () => {
+    menuOpen = !menuOpen
+    if (menuOpen) {
+      // Transform to X
+      lines[0].style.top = '50%'
+      lines[0].style.transform = 'translateY(-50%) rotate(45deg)'
+      lines[1].style.opacity = '0'
+      lines[2].style.bottom = '50%'
+      lines[2].style.transform = 'translateY(50%) rotate(-45deg)'
+      // Open mobile menu
+      mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px'
+    } else {
+      // Restore to hamburger
+      lines[0].style.top = '1'
+      lines[0].style.transform = 'none'
+      lines[1].style.opacity = '1'
+      lines[2].style.bottom = '1'
+      lines[2].style.transform = 'none'
+      // Close mobile menu
+      mobileMenu.style.maxHeight = '0'
+    }
+  })
+</script>
