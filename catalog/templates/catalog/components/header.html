@@ -12,29 +12,14 @@
       </div>
 
       <nav class="hidden md:flex items-center space-x-6">
-        <a href="{% url 'catalog:index' %}"
-           class="relative py-1 text-white hover:text-gray-200 transition-colors duration-200 after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-all after:duration-300 hover:after:w-full">
-          Home
-        </a>
-        <a href="{% url 'catalog:books' %}"
-           class="relative py-1 text-white hover:text-gray-200 transition-colors duration-200 after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-all after:duration-300 hover:after:w-full">
-          Books
-        </a>
-        <a href="{% url 'catalog:authors' %}"
-           class="relative py-1 text-white hover:text-gray-200 transition-colors duration-200 after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-all after:duration-300 hover:after:w-full">
-          Authors
-        </a>
+        <a href="{% url 'catalog:index' %}" class="nav-link">Home</a>
+        <a href="{% url 'catalog:books' %}" class="nav-link">Books</a>
+        <a href="{% url 'catalog:authors' %}" class="nav-link">Authors</a>
         {% if user.is_authenticated %}
-          <a href="{% url 'catalog:my-borrowed' %}"
-             class="relative py-1 text-white hover:text-gray-200 transition-colors duration-200 after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-all after:duration-300 hover:after:w-full">
-            My Borrowed
-          </a>
+          <a href="{% url 'catalog:my-borrowed' %}" class="nav-link">My Borrowed</a>
         {% endif %}
         {% if user.is_staff %}
-          <a href="{% url 'catalog:all-borrowed' %}"
-             class="relative py-1 text-white hover:text-gray-200 transition-colors duration-200 after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-all after:duration-300 hover:after:w-full">
-            All Borrowed
-          </a>
+          <a href="{% url 'catalog:all-borrowed' %}" class="nav-link">All Borrowed</a>
         {% endif %}
       </nav>
     </div>
@@ -60,111 +45,54 @@
           <span class="text-sm font-semibold text-gray-300">Hello, {{ user.username }}</span>
           <form action="{% url 'accounts:logout' %}" method="POST" class="inline">
             {% csrf_token %}
-            <button type="submit"
-                    class="px-3 py-1 rounded hover:bg-green-700 text-white hover:text-gray-200 transition-all duration-200">
-              Logout
-            </button>
+            <button type="submit" class="btn-header">Logout</button>
           </form>
         {% else %}
-          <a href="{% url 'accounts:login' %}"
-             class="px-3 py-1 rounded hover:bg-green-700 text-white hover:text-gray-200 transition-all duration-200">
-            Login
-          </a>
-          <a href="{% url 'accounts:register' %}"
-             class="px-3 py-1 rounded border border-white text-white hover:bg-white hover:text-green-800 transition-all duration-200">
-            Register
-          </a>
+          <a href="{% url 'accounts:login' %}" class="btn-header">Login</a>
+          <a href="{% url 'accounts:register' %}" class="btn-header-outline">Register</a>
         {% endif %}
       </div>
     </div>
   </div>
 
   <div id="mobileMenu" class="md:hidden hidden mt-4 pt-4 border-t border-green-700 flex flex-col space-y-3 transition-all duration-300">
-    <a href="{% url 'catalog:index' %}"
-       class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-      Home
-    </a>
-    <a href="{% url 'catalog:books' %}"
-       class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-      Books
-    </a>
-    <a href="{% url 'catalog:authors' %}"
-       class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-      Authors
-    </a>
-    <a href="{% url 'catalog:genres' %}"
-       class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-      Genres
-    </a>
-    <a href="{% url 'catalog:languages' %}"
-       class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-      Languages
-    </a>
-    <a href="{% url 'catalog:bookinstances' %}"
-       class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-      Book Copies
-    </a>
+    <a href="{% url 'catalog:index' %}" class="nav-link-mobile">Home</a>
+    <a href="{% url 'catalog:books' %}" class="nav-link-mobile">Books</a>
+    <a href="{% url 'catalog:authors' %}" class="nav-link-mobile">Authors</a>
+    <a href="{% url 'catalog:genres' %}" class="nav-link-mobile">Genres</a>
+    <a href="{% url 'catalog:languages' %}" class="nav-link-mobile">Languages</a>
+    <a href="{% url 'catalog:bookinstances' %}" class="nav-link-mobile">Book Copies</a>
 
     {% if user.is_authenticated %}
       <span class="py-1 px-2 text-sm font-semibold text-gray-300">Hello, {{ user.username }}</span>
-      <a href="{% url 'catalog:my-borrowed' %}"
-         class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-        My Borrowed
-      </a>
+      <a href="{% url 'catalog:my-borrowed' %}" class="nav-link-mobile">My Borrowed</a>
       <form action="{% url 'accounts:logout' %}" method="POST">
         {% csrf_token %}
-        <button type="submit"
-                class="w-full text-left py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-          Logout
-        </button>
+        <button type="submit" class="w-full text-left nav-link-mobile">Logout</button>
       </form>
     {% else %}
-      <a href="{% url 'accounts:login' %}"
-         class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-        Login
-      </a>
-      <a href="{% url 'accounts:register' %}"
-         class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-        Register
-      </a>
+      <a href="{% url 'accounts:login' %}" class="nav-link-mobile">Login</a>
+      <a href="{% url 'accounts:register' %}" class="nav-link-mobile">Register</a>
     {% endif %}
 
     {% if user.is_staff %}
       <div class="border-t border-green-700 pt-3 mt-1">
         <span class="py-1 px-2 text-sm font-semibold text-gray-400">Staff</span>
-        <a href="{% url 'catalog:all-borrowed' %}"
-           class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-          All Borrowed
-        </a>
+        <a href="{% url 'catalog:all-borrowed' %}" class="nav-link-mobile">All Borrowed</a>
         {% if perms.catalog.add_genre %}
-          <a href="{% url 'catalog:genre-create' %}"
-             class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-            Create Genre
-          </a>
+          <a href="{% url 'catalog:genre-create' %}" class="nav-link-mobile">Create Genre</a>
         {% endif %}
         {% if perms.catalog.add_language %}
-          <a href="{% url 'catalog:language-create' %}"
-             class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-            Create Language
-          </a>
+          <a href="{% url 'catalog:language-create' %}" class="nav-link-mobile">Create Language</a>
         {% endif %}
         {% if perms.catalog.add_author %}
-          <a href="{% url 'catalog:author-create' %}"
-             class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-            Create Author
-          </a>
+          <a href="{% url 'catalog:author-create' %}" class="nav-link-mobile">Create Author</a>
         {% endif %}
         {% if perms.catalog.add_book %}
-          <a href="{% url 'catalog:book-create' %}"
-             class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-            Create Book
-          </a>
+          <a href="{% url 'catalog:book-create' %}" class="nav-link-mobile">Create Book</a>
         {% endif %}
         {% if perms.catalog.add_bookinstance %}
-          <a href="{% url 'catalog:bookinstance-create' %}"
-             class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">
-            Create BookInstance
-          </a>
+          <a href="{% url 'catalog:bookinstance-create' %}" class="nav-link-mobile">Create BookInstance</a>
         {% endif %}
       </div>
     {% endif %}
