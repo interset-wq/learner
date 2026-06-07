@@ -1,43 +1,41 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Detail{% endblock %}
+{% block title %}Vote{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 py-8">
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">{{ question.question_text }}</h1>
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
     <form action="{% url 'core:vote' question.id %}" method="post">
-        {% csrf_token %}
-        <fieldset class="border border-gray-400 rounded-xl p-6 bg-gray-50">
-            <legend class="text-2xl font-bold mb-4">
-                {{ question.question_text }}
-            </legend>
+      {% csrf_token %}
 
-            {% if error_message %}
-                <p class="bg-red-50 text-red-600 px-3 py-2 rounded-md mb-4 border border-red-200">
-                    {{ error_message }}
-                </p>
-            {% endif %}
+      {% if error_message %}
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+          <p class="text-red-600 dark:text-red-400 text-sm">{{ error_message }}</p>
+        </div>
+      {% endif %}
 
-            <div class="space-y-3 mb-6">
-                {% for choice in question.choice_set.all %}
-                <div class="flex items-center gap-3 py-2 px-3 rounded hover:bg-gray-100 transition-colors">
-                    <input type="radio"
-                           name="choice"
-                           id="choice{{ forloop.counter }}"
-                           value="{{ choice.id }}"
-                           class="w-4 h-4 accent-blue-600 cursor-pointer"
-                    />
-                    <label for="choice{{ forloop.counter }}" class="cursor-pointer text-lg">
-                        {{ choice.choice_text }}
-                    </label>
-                </div>
-                {% endfor %}
-            </div>
+      <div class="space-y-3 mb-6">
+        {% for choice in question.choice_set.all %}
+          <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+            <input type="radio"
+                   name="choice"
+                   value="{{ choice.id }}"
+                   class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+            <span class="text-gray-900 dark:text-white">{{ choice.choice_text }}</span>
+          </label>
+        {% endfor %}
+      </div>
 
-            <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium">
-                Vote
-            </button>
-        </fieldset>
+      <button type="submit" class="btn-primary w-full">Vote</button>
     </form>
+  </div>
+
+  <div class="mt-6 text-center">
+    <a href="{% url 'core:results' question.id %}" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">
+      View results
+    </a>
+  </div>
 </div>
 {% endblock %}
