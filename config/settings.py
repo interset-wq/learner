@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     # My app
-    # 'learning_logs',
+    'learning_logs',
     'catalog',
     'accounts',
     # 'core',
