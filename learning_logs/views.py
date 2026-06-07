@@ -1,7 +1,9 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.http import Http404
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
 
 from learning_logs.form import TopicForm, EntryForm
 from learning_logs.models import Topic, Entry
@@ -12,12 +14,19 @@ def index(request):
     return render(request, 'learning_logs/index.html')
 
 
-@login_required
-def topics(request):
-    topics = Topic.objects.filter(owner=request.user).order_by('-date_added')
-    context = {'topics': topics}
-    return render(request, 'learning_logs/topics.html', context)
+# @login_required
+# def topics(request):
+#     topics = Topic.objects.filter(owner=request.user).order_by('-date_added')
+#     context = {'topics': topics}
+#     return render(request, 'learning_logs/topics.html', context)
+class TopicListView(LoginRequiredMixin, ListView):
+    model = Topic
+    template_name = "learning_logs/topics.html"
+    context_object_name = "topics"
+    paginate_by = 10
 
+    def get_queryset(self):
+        return Topic.objects.filter(owner=self.request.user).order_by("-date_added")
 
 @login_required
 def topic(request, topic_id):
