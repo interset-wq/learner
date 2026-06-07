@@ -2,21 +2,34 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
-  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Borrowed Books</h1>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">My Borrowed Books</h1>
+    <a href="{% url 'catalog:my-history' %}" class="btn-secondary">Borrowing History</a>
+  </div>
 
   {% if bookinstance_list %}
     <ul class="space-y-3">
       {% for bookinst in bookinstance_list %}
         <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 {% if bookinst.is_overdue %}border-l-4 border-l-red-500{% endif %}">
-          <a href="{% url 'catalog:book-detail' bookinst.book.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
-            {{ bookinst.book.title }}
-          </a>
-          <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">(Due: {{ bookinst.due_back }})</span>
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div>
+              <a href="{% url 'catalog:book-detail' bookinst.book.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                {{ bookinst.book.title }}
+              </a>
+              <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">
+                (Due: {{ bookinst.due_back }}{% if bookinst.is_overdue %} - <span class="text-red-600 dark:text-red-400">Overdue</span>{% endif %})
+              </span>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="{% url 'catalog:return-book' bookinst.id %}" class="btn-primary text-sm">Return</a>
+              <a href="{% url 'catalog:bookinstance-detail' bookinst.id %}" class="text-blue-600 dark:text-blue-400 hover:underline text-sm">Details</a>
+            </div>
+          </div>
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <p class="text-gray-500 dark:text-gray-400">There are no books borrowed.</p>
+    <p class="text-gray-500 dark:text-gray-400">You have no books currently borrowed.</p>
   {% endif %}
 </div>
 {% endblock %}

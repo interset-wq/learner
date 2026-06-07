@@ -28,7 +28,11 @@
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Genre</dt>
-        <dd class="mt-1 text-gray-900 dark:text-white">{{ book.genre.all|join:", " }}</dd>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ book.genre }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Tags</dt>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ book.tags.all|join:", " }}</dd>
       </div>
     </dl>
 
@@ -48,7 +52,7 @@
 
   {% for copy in book.bookinstance_set.all %}
     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
-      <div class="flex items-center gap-3 mb-2">
+      <div class="flex items-center justify-between gap-3 mb-2">
         <span class="px-2 py-1 text-xs font-medium rounded-full
           {% if copy.status == 'a' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
           {% elif copy.status == 'd' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
@@ -56,10 +60,19 @@
           {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
           {{ copy.get_status_display }}
         </span>
+        {% if copy.status == 'a' and user.is_authenticated %}
+          <a href="{% url 'catalog:borrow-book' copy.id %}" class="btn-primary text-sm">Borrow</a>
+        {% endif %}
+        {% if copy.status == 'o' and copy.borrower == user %}
+          <a href="{% url 'catalog:return-book' copy.id %}" class="btn-secondary text-sm">Return</a>
+        {% endif %}
       </div>
       {% if copy.status != 'a' %}
         <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">
           <span class="font-medium">Due:</span> {{ copy.due_back }}
+          {% if copy.is_overdue %}
+            <span class="text-red-600 dark:text-red-400 text-sm">(Overdue)</span>
+          {% endif %}
         </p>
       {% endif %}
       <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">

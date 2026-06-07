@@ -17,6 +17,10 @@
     letter-spacing: 0.2px;
 }
 
+.dark .django-form label {
+    color: #d1d5db;
+}
+
 .django-form input {
     width: 100%;
     padding: 0.875rem 1rem;
@@ -25,13 +29,33 @@
     font-size: 1rem;
     line-height: 1.5;
     background-color: #f9fafb;
+    color: #1f2937;
     box-sizing: border-box;
     transition: all 0.25s ease;
+}
+
+.dark .django-form input {
+    border-color: #4b5563;
+    background-color: #1f2937;
+    color: #f9fafb;
+}
+
+.django-form input::placeholder {
+    color: #9ca3af;
+}
+
+.dark .django-form input::placeholder {
+    color: #6b7280;
 }
 
 .django-form input:hover:not(:focus) {
     border-color: #d1d5db;
     background-color: #ffffff;
+}
+
+.dark .django-form input:hover:not(:focus) {
+    border-color: #6b7280;
+    background-color: #374151;
 }
 
 .django-form input:focus {
@@ -41,7 +65,25 @@
     background-color: #fff;
 }
 
-/* 合并字段错误 + 全局表单错误样式 */
+.dark .django-form input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+    background-color: #1f2937;
+}
+
+.django-form input[readonly] {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+    pointer-events: none;
+    user-select: none;
+}
+
+.dark .django-form input[readonly] {
+    background-color: #111827;
+    color: #9ca3af;
+}
+
 .django-form .errorlist {
     list-style: none;
     padding: 0.75rem 1rem;
@@ -52,4 +94,10 @@
     background-color: #fef2f2;
     border: 1px solid #fecdd3;
     border-radius: 0.5rem;
+}
+
+.dark .django-form .errorlist {
+    color: #fca5a5;
+    background-color: #450a0a;
+    border-color: #7f1d1d;
 }

@@ -1,0 +1,42 @@
+{% extends "catalog/base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">My Borrowing History</h1>
+
+  {% if record_list %}
+    <ul class="space-y-3">
+      {% for record in record_list %}
+        <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div>
+              <a href="{% url 'catalog:book-detail' record.book_instance.book.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                {{ record.book_instance.book.title }}
+              </a>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Imprint: {{ record.book_instance.imprint }}
+              </p>
+            </div>
+            <div class="flex items-center gap-4 text-sm">
+              <span class="text-gray-600 dark:text-gray-300">
+                Borrowed: {{ record.borrow_date }}
+              </span>
+              {% if record.return_date %}
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  Returned: {{ record.return_date }}
+                </span>
+              {% else %}
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                  On Loan
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-500 dark:text-gray-400">You have no borrowing history.</p>
+  {% endif %}
+</div>
+{% endblock %}

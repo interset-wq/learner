@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block content %}
-  <div class="max-w-md w-full mx-auto bg-white rounded-xl shadow-lg p-8 my-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 my-12 px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">Sign In</h1>
-      <p class="mt-2 text-lg text-gray-500">Sign in to your Learning Log account</p>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Sign In</h1>
+      <p class="mt-2 text-lg text-gray-500 dark:text-gray-400">Sign in to your Learning Log account</p>
     </div>
 
     {#  {% if form.errors %}#}
@@ -27,9 +27,9 @@
       </button>
     </form>
 
-    <p class="text-sm text-gray-600 text-center mt-6">
+    <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-6">
       Don't have an account?
-      <a href="{% url 'accounts:register' %}" class="font-medium text-blue-600 hover:text-blue-800 ml-1">Sign up</a>
+      <a href="{% url 'accounts:register' %}" class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 ml-1">Sign up</a>
     </p>
   </div>
 {% endblock %}

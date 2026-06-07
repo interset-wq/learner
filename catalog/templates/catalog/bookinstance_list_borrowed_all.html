@@ -13,7 +13,9 @@
               <a href="{% url 'catalog:book-detail' bookinst.book.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
                 {{ bookinst.book.title }}
               </a>
-              <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">(Due: {{ bookinst.due_back }})</span>
+              <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">
+                (Due: {{ bookinst.due_back }}{% if bookinst.is_overdue %} - <span class="text-red-600 dark:text-red-400">Overdue</span>{% endif %})
+              </span>
             </div>
             <div class="flex items-center gap-3 text-sm">
               {% if user.is_staff %}
@@ -21,6 +23,7 @@
               {% endif %}
               {% if perms.catalog.can_mark_returned %}
                 <a href="{% url 'catalog:renew-book-librarian' bookinst.id %}" class="text-blue-600 dark:text-blue-400 hover:underline">Renew</a>
+                <a href="{% url 'catalog:return-book' bookinst.id %}" class="text-blue-600 dark:text-blue-400 hover:underline">Return</a>
               {% endif %}
             </div>
           </div>

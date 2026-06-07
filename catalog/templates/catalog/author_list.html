@@ -14,7 +14,7 @@
       {% for author in author_list %}
         <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200">
           <a href="{{ author.get_absolute_url }}" class="block text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline mb-1">
-            {{ author.last_name }}, {{ author.first_name }}
+            {{ author.name }}
           </a>
           <p class="text-sm text-gray-500 dark:text-gray-400">
             {{ author.date_of_birth }}{% if author.date_of_death %} - {{ author.date_of_death }}{% endif %}

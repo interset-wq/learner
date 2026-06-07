@@ -1,0 +1,33 @@
+{% extends "catalog/base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Tag: {{ tag.name }}</h1>
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
+    {% if perms.catalog.change_tag or perms.catalog.delete_tag %}
+      <div class="flex gap-3 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+        {% if perms.catalog.change_tag %}
+          <a href="{% url 'catalog:tag-update' tag.id %}" class="btn-secondary text-sm">Update Tag</a>
+        {% endif %}
+        {% if not tag.book_set.all and perms.catalog.delete_tag %}
+          <a href="{% url 'catalog:tag-delete' tag.id %}" class="btn-danger text-sm">Delete Tag</a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Books with Tag</h2>
+
+    {% for book in tag.book_set.all %}
+      <div class="border-b border-gray-200 dark:border-gray-700 last:border-0 py-4">
+        <a href="{{ book.get_absolute_url }}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+          {{ book.title }}
+        </a>
+        <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">({{ book.author }})</span>
+      </div>
+    {% empty %}
+      <p class="text-gray-500 dark:text-gray-400">There are no books with this tag.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

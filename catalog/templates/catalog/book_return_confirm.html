@@ -1,0 +1,41 @@
+{% extends "catalog/base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Return Book</h1>
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <dl class="space-y-3">
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Title</dt>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ book_instance.book.title }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Author</dt>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ book_instance.book.author }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Borrower</dt>
+        <dd class="mt-1 text-gray-900 dark:text-white">{{ book_instance.borrower }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Due Date</dt>
+        <dd class="mt-1 {% if book_instance.is_overdue %}text-red-600 dark:text-red-400{% else %}text-gray-900 dark:text-white{% endif %}">
+          {{ book_instance.due_back }}
+          {% if book_instance.is_overdue %}
+            <span class="text-sm font-medium">(Overdue)</span>
+          {% endif %}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="flex gap-3">
+      <button type="submit" class="btn-primary">Confirm Return</button>
+      <a href="{% url 'catalog:my-borrowed' %}" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
