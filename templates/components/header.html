@@ -1,9 +1,7 @@
 {% load static %}
 <header class="bg-green-800 text-white shadow-md py-4 px-6 transition-all duration-300">
   <div class="flex justify-between items-center">
-    <!-- 左侧整体：Logo + 主导航 -->
     <div class="flex items-center gap-8">
-      <!-- Logo & 站点名 -->
       <div class="flex items-center gap-1">
         <img src="{% static 'favicon.ico' %}" alt="logo" class="w-6 h-6 object-contain">
         <span class="text-xl font-bold">
@@ -13,7 +11,6 @@
         </span>
       </div>
 
-      <!-- 桌面端主导航（独立左侧区域） -->
       <nav class="hidden md:flex items-center space-x-6">
         <a href="{% url 'learning_logs:index' %}"
            class="relative py-1 text-white hover:text-gray-200 transition-colors duration-200 after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-white after:transition-all after:duration-300 hover:after:w-full">
@@ -26,38 +23,46 @@
       </nav>
     </div>
 
-    <!-- 移动端汉堡按钮 -->
-    <button id="hamburgerBtn" class="md:hidden relative w-8 h-8 flex flex-col justify-center items-center gap-1.5 focus:outline-none">
-      <span class="line block w-full h-0.5 bg-white rounded transition-all duration-300"></span>
-      <span class="line block w-full h-0.5 bg-white rounded transition-all duration-300"></span>
-      <span class="line block w-full h-0.5 bg-white rounded transition-all duration-300"></span>
-    </button>
+    <div class="flex items-center gap-4">
+      <button id="themeToggle" class="p-2 rounded hover:bg-green-700 transition-colors" aria-label="Toggle dark mode">
+        <svg class="w-5 h-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg class="w-5 h-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      </button>
 
-    <!-- 桌面端用户区域（独立右侧区域） -->
-    <div class="hidden md:flex items-center space-x-4">
-      {% if user.is_authenticated %}
-        <span class="text-sm font-semibold text-gray-300">Hello, {{ user.username }}</span>
-        <form action="{% url 'accounts:logout' %}" method="POST" class="inline">
-          {% csrf_token %}
-          <button type="submit"
-                  class="px-3 py-1 rounded hover:bg-green-700 text-white hover:text-gray-200 transition-all duration-200">
-            Logout
-          </button>
-        </form>
-      {% else %}
-        <a href="{% url 'accounts:login' %}"
-           class="px-3 py-1 rounded hover:bg-green-700 text-white hover:text-gray-200 transition-all duration-200">
-          Login
-        </a>
-        <a href="{% url 'accounts:register' %}"
-           class="px-3 py-1 rounded border border-white text-white hover:bg-white hover:text-green-800 transition-all duration-200">
-          Register
-        </a>
-      {% endif %}
+      <button id="hamburgerBtn" class="md:hidden relative w-8 h-8 flex flex-col justify-center items-center gap-1.5 focus:outline-none">
+        <span class="line block w-full h-0.5 bg-white rounded transition-all duration-300"></span>
+        <span class="line block w-full h-0.5 bg-white rounded transition-all duration-300"></span>
+        <span class="line block w-full h-0.5 bg-white rounded transition-all duration-300"></span>
+      </button>
+
+      <div class="hidden md:flex items-center space-x-4">
+        {% if user.is_authenticated %}
+          <span class="text-sm font-semibold text-gray-300">Hello, {{ user.username }}</span>
+          <form action="{% url 'accounts:logout' %}" method="POST" class="inline">
+            {% csrf_token %}
+            <button type="submit"
+                    class="px-3 py-1 rounded hover:bg-green-700 text-white hover:text-gray-200 transition-all duration-200">
+              Logout
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}"
+             class="px-3 py-1 rounded hover:bg-green-700 text-white hover:text-gray-200 transition-all duration-200">
+            Login
+          </a>
+          <a href="{% url 'accounts:register' %}"
+             class="px-3 py-1 rounded border border-white text-white hover:bg-white hover:text-green-800 transition-all duration-200">
+            Register
+          </a>
+        {% endif %}
+      </div>
     </div>
   </div>
 
-  <!-- 移动端下拉菜单 -->
   <div id="mobileMenu" class="md:hidden hidden mt-4 pt-4 border-t border-green-700 flex flex-col space-y-3 transition-all duration-300">
     <a href="{% url 'learning_logs:index' %}"
        class="py-1 px-2 hover:bg-green-700 rounded transition-colors duration-200">

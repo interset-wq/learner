@@ -1,3 +1,10 @@
-    <footer class="flex bg-green-800 px-6 py-4 text-white justify-center">
-        &copy; {% now "Y" %} {{ TOML.site.name }}
-    </footer>
+<footer class="bg-green-800 dark:bg-green-900 px-6 py-4 text-white">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+    <span>&copy; {% now "Y" %} {{ TOML.site.name }}</span>
+    <nav class="flex items-center space-x-4 text-sm">
+      <a href="{% url 'catalog:index' %}" class="hover:text-gray-200 transition-colors">Catalog</a>
+      <a href="{% url 'learning_logs:index' %}" class="hover:text-gray-200 transition-colors">Learning Logs</a>
+      <a href="{% url 'core:index' %}" class="hover:text-gray-200 transition-colors">Core</a>
+    </nav>
+  </div>
+</footer>

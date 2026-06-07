@@ -17,10 +17,10 @@
   {% block css %}{% endblock %}
   {% block head_js %}{% endblock %}
 </head>
-<body class="min-h-screen flex flex-col bg-gray-50">
-{#{% include "components/header.html" %}#}
+<body class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
+{% include "components/header.html" %}
 
-<main class="flex-1 bg-white px-4 py-8">
+<main class="flex-1 bg-white dark:bg-gray-800 px-4 py-8">
   {% block content %}{% endblock %}
 
   {% block pagination %}
@@ -30,5 +30,21 @@
 
 {% include "components/footer.html" %}
 {% block body_js %}{% endblock %}
+
+<script>
+  const themeToggle = document.getElementById('themeToggle');
+  const html = document.documentElement;
+
+  if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    html.classList.add('dark');
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+  }
+</script>
 </body>
 </html>
