@@ -100,9 +100,10 @@ def entry_detail(request, entry_id):
     return render(request, "learning_logs/entry_detail.html", context)
 
 
-@login_required
 def load_more_comments(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
+    if not entry.topic.is_public or not entry.is_public:
+        raise Http404
     offset = int(request.GET.get("offset", 0))
     limit = COMMENTS_PER_PAGE
 
