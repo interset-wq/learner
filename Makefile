@@ -1,4 +1,4 @@
-.PHONY: help install migrate dev build seed superuser clean docker-build docker-up docker-down
+.PHONY: help install migrate dev build seed superuser clean docker-build docker-up docker-down test
 
 PYTHON = uv run python
 PNPM = pnpm
@@ -36,6 +36,12 @@ shell: ## Open Django shell
 
 check: ## Run Django system checks
 	$(PYTHON) manage.py check
+
+test: ## Run all tests
+	$(PYTHON) manage.py test
+
+lint: ## Run pre-commit on all files
+	uv run pre-commit run --all-files
 
 clean: ## Remove Python caches and build artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
