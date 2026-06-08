@@ -6,17 +6,19 @@ from django.utils import timezone
 from django.views.generic import DetailView, ListView
 
 from .models import Question, Choice
+from config.mixins import LoadMoreMixin
 
 
 def index(request):
     return render(request, 'core/index.html')
 
 
-class QuestionListView(ListView):
+class QuestionListView(LoadMoreMixin, ListView):
     model = Question
     template_name = 'core/question_list.html'
     context_object_name = 'latest_question_list'
     paginate_by = 10
+    item_template = 'core/partials/question_items.html'
 
     def get_queryset(self):
         return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')

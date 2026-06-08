@@ -1,0 +1,48 @@
+{% if is_paginated and page_obj.has_next %}
+  <div id="load-more-wrapper" class="mt-8 text-center">
+    <button id="load-more-btn"
+      data-next-url="?page={{ page_obj.next_page_number }}"
+      data-list-selector="#item-list"
+      onclick="loadMore(this)"
+      class="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors">
+      Load More
+    </button>
+    <p id="load-more-status" class="text-sm text-gray-500 dark:text-gray-400 mt-2 hidden">Loading...</p>
+  </div>
+
+  <script>
+    async function loadMore(btn) {
+      const url = btn.dataset.nextUrl;
+      const listSelector = btn.dataset.listSelector;
+      const status = document.getElementById('load-more-status');
+
+      btn.disabled = true;
+      btn.textContent = 'Loading...';
+      status.classList.remove('hidden');
+      status.textContent = '';
+
+      try {
+        const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const data = await res.json();
+
+        const list = document.querySelector(listSelector);
+        if (list) {
+          list.insertAdjacentHTML('beforeend', data.html);
+        }
+
+        if (data.has_next) {
+          btn.dataset.nextUrl = data.next_url;
+          btn.disabled = false;
+          btn.textContent = 'Load More';
+        } else {
+          btn.remove();
+          status.textContent = 'All items loaded.';
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Load More';
+        status.textContent = 'Failed to load. Try again.';
+      }
+    }
+  </script>
+{% endif %}

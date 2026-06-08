@@ -1,2 +1,5 @@
 [site]
 name = "Django Demos"
+
+[pagination]
+style = "traditional"
