@@ -57,42 +57,67 @@ Authentication and profile management (Django built-in auth).
 
 ## Quick Start
 
-### Local Development
+### Prerequisites
+
+- [Python 3.13+](https://www.python.org/)
+- [Node.js 22+](https://nodejs.org/)
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
+- [pnpm](https://pnpm.io/) (Node.js package manager)
 
 ```bash
-# Install dependencies
-make install
-# or manually: uv sync && pnpm install
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh   # macOS / Linux
+# or: powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
 
-# Setup (install + migrate + seed + build)
-make setup
+# Install pnpm
+npm install -g pnpm
+```
 
-# Start development server
-make dev
-# or: uv run python manage.py runserver + pnpm dev
+### Linux (Makefile)
 
-# Access at http://localhost:8000
-# Admin: admin/admin123
+```bash
+make setup          # Install + migrate + seed + build
+make dev            # Start Django + Tailwind watch
+# Access: http://localhost:8000  |  Admin: admin/admin123
+make help           # Show all commands
+```
+
+### macOS / Windows (Manual)
+
+```bash
+# 1. Install dependencies
+uv sync
+pnpm install
+
+# 2. Run migrations
+uv run python manage.py migrate
+
+# 3. Generate fake data (creates staff accounts + sample data)
+uv run python create_fake_data.py
+
+# 4. Build Tailwind CSS
+pnpm build
+
+# 5. Start development (run in two terminals)
+pnpm dev                                    # Terminal 1: Tailwind watch
+uv run python manage.py runserver           # Terminal 2: Django server
+
+# Access: http://localhost:8000
+# Admin: admin / admin123
 ```
 
 ### Docker
 
 ```bash
-# Build and start
-make docker-build
-make docker-up
+docker compose build       # Build image
+docker compose up -d       # Start container
+docker compose exec web uv run python create_fake_data.py  # Seed data
 
-# Seed data
-make docker-seed
+# Access: http://localhost:8000
+# Admin: admin / admin123
 
-# Access at http://localhost:8000
-# Admin: admin/admin123
-
-# Stop
-make docker-down
+docker compose down        # Stop container
 ```
-
-Run `make help` to see all available commands.
 
 ## Project Structure
 
