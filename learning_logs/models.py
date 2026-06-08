@@ -1,7 +1,10 @@
+import hashlib
+
 import markdown
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.safestring import mark_safe
+from django.utils.text import Truncator
 
 
 class Topic(models.Model):
@@ -12,6 +15,18 @@ class Topic(models.Model):
 
     def __str__(self):
         return self.text
+
+
+AVATAR_COLORS = [
+    "from-blue-500 to-indigo-600",
+    "from-emerald-500 to-teal-600",
+    "from-purple-500 to-pink-600",
+    "from-orange-500 to-red-600",
+    "from-cyan-500 to-blue-600",
+    "from-rose-500 to-fuchsia-600",
+    "from-amber-500 to-orange-600",
+    "from-lime-500 to-green-600",
+]
 
 
 class Entry(models.Model):
@@ -45,6 +60,23 @@ class Entry(models.Model):
     @property
     def root_comments(self):
         return self.comments.filter(parent__isnull=True)
+
+    @property
+    def plain_text(self):
+        return Truncator(self.text).chars(280)
+
+    @property
+    def rendered_preview(self):
+        truncated = self.plain_text
+        return mark_safe(
+            markdown.markdown(
+                truncated,
+                extensions=["fenced_code", "codehilite", "tables"],
+                extension_configs={
+                    "codehilite": {"css_class": "highlight", "guess_lang": False}
+                },
+            )
+        )
 
     @property
     def rendered_text(self):
@@ -82,3 +114,10 @@ class Comment(models.Model):
             d += 1
             parent = parent.parent
         return d
+
+    @property
+    def avatar_gradient(self):
+        idx = int(hashlib.md5(self.user.username.encode()).hexdigest(), 16) % len(
+            AVATAR_COLORS
+        )
+        return AVATAR_COLORS[idx]
