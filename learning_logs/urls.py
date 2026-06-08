@@ -16,6 +16,11 @@ urlpatterns = [
     path("entry/<int:entry_id>/like/", views.toggle_like, name="toggle_like"),
     path("entry/<int:entry_id>/comment/", views.add_comment, name="add_comment"),
     path(
+        "entry/<int:entry_id>/comments/",
+        views.load_more_comments,
+        name="load_more_comments",
+    ),
+    path(
         "comment/<int:comment_id>/delete/",
         views.delete_comment,
         name="delete_comment",
