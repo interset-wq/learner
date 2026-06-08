@@ -2,92 +2,72 @@
 {% load static %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
-  <div class="flex flex-col items-center text-center mb-20 space-y-6">
-    <h1 class="text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-6xl transition-transform duration-300 hover:scale-[1.02]">
-      {{ TOML.site.name }}
-    </h1>
-    <p class="text-xl text-slate-500 dark:text-slate-400 max-w-2xl">
-      A web application built with Django
+<div class="max-w-4xl mx-auto py-10">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Learning Logs</h1>
+    <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+      Keep track of the topics you're learning and record your learning journey.
     </p>
-    <p class="text-lg text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
-      Keep track of the topics you're learning and record your learning journey.<br>
-      Organize your notes and review your progress easily.
-    </p>
-
-    <div class="flex items-center gap-4 mt-4">
+    <div class="flex justify-center gap-4 mt-6">
       <a href="{% url 'learning_logs:topics' %}"
-         class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-700 hover:bg-green-800 transition-all duration-300 shadow-sm hover:shadow-lg hover:scale-105">
+        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-700 hover:bg-green-800 transition-all duration-300 shadow-sm hover:shadow-lg">
         Start Learning
       </a>
       <a href="{% url 'accounts:register' %}"
-         class="inline-flex items-center justify-center px-6 py-3 border border-green-700 dark:border-green-500 text-base font-medium rounded-md text-green-700 dark:text-green-400 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105">
+        class="inline-flex items-center px-6 py-3 border border-green-700 dark:border-green-500 text-base font-medium rounded-md text-green-700 dark:text-green-400 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md">
         Register
       </a>
     </div>
   </div>
 
-  <div class="flex flex-wrap -mx-4">
-    <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8">
-      <div class="h-full p-6 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-        <svg class="h-48 w-full object-contain mb-6" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="30" y="40" width="140" height="80" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="3"/>
-          <path d="M70 70 L95 95 L130 60" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="50" cy="30" r="8" fill="#9333EA"/>
-          <circle cx="150" cy="130" r="8" fill="#9333EA"/>
-        </svg>
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Django</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          Powerful Python web framework for building full-featured web apps quickly.
-        </p>
-      </div>
-    </div>
+  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Data Model</h2>
+  <p class="text-gray-600 dark:text-gray-300 mb-4">ER diagram of the learning logs data structure:</p>
 
-    <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8">
-      <div class="h-full p-6 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-        <svg class="h-48 w-full object-contain mb-6" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="40" y="25" width="120" height="110" rx="6" fill="#F5F3FF" stroke="#9333EA" stroke-width="3"/>
-          <line x1="60" y1="50" x2="140" y2="50" stroke="#6B7280" stroke-width="3" stroke-linecap="round"/>
-          <line x1="60" y1="70" x2="120" y2="70" stroke="#6B7280" stroke-width="3" stroke-linecap="round"/>
-          <line x1="60" y1="90" x2="130" y2="90" stroke="#6B7280" stroke-width="3" stroke-linecap="round"/>
-          <text x="75" y="125" font-size="16" fill="#9333EA" font-weight="bold">TW</text>
-        </svg>
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Tailwind CSS</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          Utility-first CSS framework to build modern responsive user interfaces.
-        </p>
-      </div>
-    </div>
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-10">
+    <pre class="mermaid">
+erDiagram
+    Topic {
+        int id PK
+        varchar text
+        datetime date_added
+        int owner_id FK
+    }
 
-    <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8">
-      <div class="h-full p-6 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-        <svg class="h-48 w-full object-contain mb-6" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="55" y="60" width="90" height="70" rx="4" fill="#FEF2F2" stroke="#EF4444" stroke-width="3"/>
-          <path d="M75 60 V45 C75 35 125 35 125 45 V60" stroke="#EF4444" stroke-width="3" fill="none"/>
-          <circle cx="100" cy="95" r="12" fill="#EF4444"/>
-          <path d="M96 95 L104 95 M100 91 L100 99" stroke="white" stroke-width="2"/>
-        </svg>
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">SQLite</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          Lightweight built-in database to store topics and user learning entries.
-        </p>
-      </div>
-    </div>
+    Entry {
+        int id PK
+        text text
+        datetime date_added
+        int topic_id FK
+    }
 
-    <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8">
-      <div class="h-full p-6 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-        <svg class="h-48 w-full object-contain mb-6" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="60" y="35" width="80" height="90" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="3"/>
-          <path d="M90 65 L110 85 L135 55" stroke="#10B981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="100" cy="115" r="6" fill="#10B981"/>
-        </svg>
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Python</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          Core programming language, simple syntax and powerful in web development.
-        </p>
-      </div>
+    User ||--o{ Topic : "owns"
+    Topic ||--o{ Entry : "has"
+    </pre>
+  </div>
+
+  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Features</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Topic Management</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Create and organize learning topics with full CRUD support.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Entry Tracking</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Record learning entries under each topic with timestamps.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-900 dark:text-white mb-2">User Isolation</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Each user sees only their own topics and entries.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
+      <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Pagination</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Topics list supports pagination for easy browsing.</p>
     </div>
   </div>
 </div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default' });
+</script>
 {% endblock %}

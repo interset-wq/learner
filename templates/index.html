@@ -4,7 +4,7 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-  <div class="flex flex-col items-center text-center mb-20 space-y-6">
+  <div class="flex flex-col items-center text-center mb-16 space-y-6">
     <h1 class="text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-6xl transition-transform duration-300 hover:scale-[1.02]">
       {{ TOML.site.name }}
     </h1>
@@ -13,29 +13,58 @@
     </p>
     <p class="text-lg text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
       Explore different Django features through practical demos.<br>
-      Built with modern tools and best practices.
+      Built with Django, Tailwind CSS, SQLite, and Python.
     </p>
+  </div>
 
-    <div class="flex items-center gap-4 mt-4">
-      <a href="{% url 'catalog:index' %}"
-         class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-700 hover:bg-green-800 transition-all duration-300 shadow-sm hover:shadow-lg hover:scale-105">
-        Catalog
-      </a>
-      <a href="{% url 'learning_logs:index' %}"
-         class="inline-flex items-center justify-center px-6 py-3 border border-green-700 dark:border-green-500 text-base font-medium rounded-md text-green-700 dark:text-green-400 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105">
-        Learning Logs
-      </a>
-      <a href="{% url 'core:index' %}"
-         class="inline-flex items-center justify-center px-6 py-3 border border-green-700 dark:border-green-500 text-base font-medium rounded-md text-green-700 dark:text-green-400 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105">
-        Polls
-      </a>
-    </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+    <a href="{% url 'catalog:index' %}" class="group bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Catalog</h2>
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+        A local library management system. Browse books, authors, genres. Borrow and return books, manage copies and records.
+      </p>
+    </a>
+
+    <a href="{% url 'learning_logs:index' %}" class="group bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">Learning Logs</h2>
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+        A personal learning journal. Create topics, record entries, and track your learning progress over time.
+      </p>
+    </a>
+
+    <a href="{% url 'core:index' %}" class="group bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Polls</h2>
+      </div>
+      <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+        A polling application. Create questions with choices, vote, and view results with real-time vote counts.
+      </p>
+    </a>
   </div>
 
   <div class="flex flex-wrap -mx-4">
     <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8">
       <div class="h-full p-6 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-        <svg class="h-48 w-full object-contain mb-6" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="h-32 w-full object-contain mb-4" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="30" y="40" width="140" height="80" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="3"/>
           <path d="M70 70 L95 95 L130 60" stroke="#3B82F6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="50" cy="30" r="8" fill="#9333EA"/>
@@ -50,7 +79,7 @@
 
     <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8">
       <div class="h-full p-6 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-        <svg class="h-48 w-full object-contain mb-6" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="h-32 w-full object-contain mb-4" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="40" y="25" width="120" height="110" rx="6" fill="#F5F3FF" stroke="#9333EA" stroke-width="3"/>
           <line x1="60" y1="50" x2="140" y2="50" stroke="#6B7280" stroke-width="3" stroke-linecap="round"/>
           <line x1="60" y1="70" x2="120" y2="70" stroke="#6B7280" stroke-width="3" stroke-linecap="round"/>
@@ -66,7 +95,7 @@
 
     <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8">
       <div class="h-full p-6 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-        <svg class="h-48 w-full object-contain mb-6" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="h-32 w-full object-contain mb-4" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="55" y="60" width="90" height="70" rx="4" fill="#FEF2F2" stroke="#EF4444" stroke-width="3"/>
           <path d="M75 60 V45 C75 35 125 35 125 45 V60" stroke="#EF4444" stroke-width="3" fill="none"/>
           <circle cx="100" cy="95" r="12" fill="#EF4444"/>
@@ -81,7 +110,7 @@
 
     <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8">
       <div class="h-full p-6 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center">
-        <svg class="h-48 w-full object-contain mb-6" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="h-32 w-full object-contain mb-4" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="60" y="35" width="80" height="90" rx="10" fill="#F0FDF4" stroke="#10B981" stroke-width="3"/>
           <path d="M90 65 L110 85 L135 55" stroke="#10B981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
           <circle cx="100" cy="115" r="6" fill="#10B981"/>

@@ -7,14 +7,14 @@ from django.views.generic import DetailView, ListView
 
 from .models import Question, Choice
 
-# Create your views here.
-# def index(request):
-#     latest_question_list = Question.objects.order_by('-pub_date')[:5]
-#     context = {'latest_question_list': latest_question_list}
-#     return render(request, 'core/index.html', context)
-class IndexView(ListView):
+
+def index(request):
+    return render(request, 'core/index.html')
+
+
+class QuestionListView(ListView):
     model = Question
-    template_name = 'core/index.html'
+    template_name = 'core/question_list.html'
     context_object_name = 'latest_question_list'
     paginate_by = 10
 

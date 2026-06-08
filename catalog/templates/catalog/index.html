@@ -3,43 +3,105 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
-  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Catalog Home</h1>
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Catalog</h1>
 
-  <p class="text-gray-600 dark:text-gray-100 mb-6">
-    Welcome to the <em class="font-semibold">Local Library</em>, a Django demo application.
+  <p class="text-gray-600 dark:text-gray-300 mb-6">
+    A Django demo application for managing a local library &mdash; books, authors, borrowing, and more.
   </p>
 
-  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4 mt-10">UML Models</h2>
-  <p class="text-gray-600 dark:text-gray-100 mb-4">An UML diagram of the site's Django model structure:</p>
+  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Data Model</h2>
+  <p class="text-gray-600 dark:text-gray-300 mb-4">ER diagram of the library data structure:</p>
 
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 mb-10">
-    <img src="{% static 'catalog/images/local_library_model_uml.png' %}" alt="UML Model" class="max-w-full h-auto">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 mb-10">
+    <pre class="mermaid">
+erDiagram
+    Genre {
+        int id PK
+        varchar name
+    }
+
+    Language {
+        int id PK
+        varchar name
+    }
+
+    Author {
+        int id PK
+        varchar name
+        date date_of_birth
+        date date_of_death
+    }
+
+    Tag {
+        int id PK
+        varchar name
+    }
+
+    Book {
+        int id PK
+        varchar title
+        int author_id FK
+        text summary
+        int genre_id FK
+        int language_id FK
+    }
+
+    BookInstance {
+        int id PK
+        int book_id FK
+        varchar imprint
+        date due_back
+        int borrower_id FK
+        varchar status
+    }
+
+    Record {
+        int id PK
+        int book_instance_id FK
+        int borrower_id FK
+        date borrow_date
+        date return_date
+    }
+
+    Book }o--|| Author : "written by"
+    Book }o--|| Language : "in"
+    Book }o--|| Genre : "belongs to"
+    Book }o--o{ Tag : "has"
+    BookInstance }o--|| Book : "is a copy of"
+    BookInstance }o--o| Record : "has"
+    Record }o--|| User : "borrowed by"
+    </pre>
   </div>
 
   <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Dynamic Content</h2>
-  <p class="text-gray-600 dark:text-gray-100 mb-4">The library has the following record counts:</p>
+  <p class="text-gray-600 dark:text-gray-300 mb-4">The library has the following record counts:</p>
 
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
       <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">{{ num_books }}</p>
-      <p class="text-sm text-gray-500 dark:text-gray-200">Books</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Books</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
       <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ num_instances }}</p>
-      <p class="text-sm text-gray-500 dark:text-gray-200">Copies</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Copies</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
       <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ num_instances_available }}</p>
-      <p class="text-sm text-gray-500 dark:text-gray-200">Available</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Available</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-center">
       <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ num_authors }}</p>
-      <p class="text-sm text-gray-500 dark:text-gray-200">Authors</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Authors</p>
     </div>
   </div>
 
-  <p class="text-gray-500 dark:text-gray-200 text-sm">
+  <p class="text-gray-500 dark:text-gray-400 text-sm">
     You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.
   </p>
 </div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default' });
+</script>
 {% endblock %}
