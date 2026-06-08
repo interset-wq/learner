@@ -115,7 +115,7 @@ Run `make help` to see all available commands.
 ## Project Structure
 
 ```
-learning_log/
+learner/
 ├── catalog/          # Library management app
 ├── core/             # Polls app
 ├── learning_logs/    # Personal learning journal

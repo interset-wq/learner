@@ -1,5 +1,5 @@
 [project]
-name = "learning-log"
+name = "learner"
 version = "2.2.0"
 description = "A collection of Django demo applications: catalog, learning logs, polls, and accounts"
 readme = "README.md"
