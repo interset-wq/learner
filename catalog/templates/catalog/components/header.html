@@ -17,10 +17,6 @@
         <a href="{% url 'catalog:authors' %}" class="nav-link">Authors</a>
         <a href="{% url 'catalog:genres' %}" class="nav-link">Genres</a>
         <a href="{% url 'catalog:tags' %}" class="nav-link">Tags</a>
-        {% if user.is_authenticated %}
-          <a href="{% url 'catalog:my-borrowed' %}" class="nav-link">My Borrowed</a>
-          <a href="{% url 'catalog:my-history' %}" class="nav-link">History</a>
-        {% endif %}
       </nav>
     </div>
 
@@ -42,16 +38,30 @@
 
       <div class="hidden md:flex items-center space-x-4">
         {% if user.is_authenticated %}
-          {% if user.is_staff %}
-            <a href="{% url 'catalog:staff-dashboard' %}" class="nav-link">Manage</a>
-          {% endif %}
-          <a href="{% url 'accounts:profile' %}" class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-sm font-bold hover:bg-amber-400 transition-colors" title="Profile">
-            {{ user.username|first|upper }}
-          </a>
-          <form action="{% url 'accounts:logout' %}" method="POST" class="inline">
-            {% csrf_token %}
-            <button type="submit" class="btn-header">Logout</button>
-          </form>
+          <div class="relative" id="avatarDropdown">
+            <button id="avatarBtn" class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-sm font-bold hover:bg-amber-400 transition-colors focus:outline-none" title="{{ user.username }}">
+              {{ user.username|first|upper }}
+            </button>
+            <div id="avatarMenu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-1 z-50">
+              <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ user.username }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+              </div>
+              <a href="{% url 'catalog:user-profile' user.username %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">My Profile</a>
+              <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Edit Profile</a>
+              <a href="{% url 'catalog:my-borrowed' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">My Borrowed</a>
+              <a href="{% url 'catalog:my-history' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">History</a>
+              {% if user.is_staff %}
+                <a href="{% url 'catalog:staff-dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Dashboard</a>
+              {% endif %}
+              <div class="border-t border-gray-200 dark:border-gray-700 mt-1 pt-1">
+                <form action="{% url 'accounts:logout' %}" method="POST">
+                  {% csrf_token %}
+                  <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Logout</button>
+                </form>
+              </div>
+            </div>
+          </div>
         {% else %}
           <a href="{% url 'accounts:login' %}" class="btn-header">Login</a>
           <a href="{% url 'accounts:register' %}" class="btn-header-outline">Register</a>
@@ -71,15 +81,16 @@
 
     {% if user.is_authenticated %}
       <div class="border-t border-green-700 pt-3 mt-1">
-        <a href="{% url 'accounts:profile' %}" class="nav-link-mobile flex items-center gap-2">
+        <a href="{% url 'catalog:user-profile' user.username %}" class="nav-link-mobile flex items-center gap-2">
           <span class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-xs font-bold">{{ user.username|first|upper }}</span>
           {{ user.username }}
         </a>
-        {% if user.is_staff %}
-          <a href="{% url 'catalog:staff-dashboard' %}" class="nav-link-mobile">Manage</a>
-        {% endif %}
+        <a href="{% url 'accounts:profile' %}" class="nav-link-mobile">Edit Profile</a>
         <a href="{% url 'catalog:my-borrowed' %}" class="nav-link-mobile">My Borrowed</a>
         <a href="{% url 'catalog:my-history' %}" class="nav-link-mobile">History</a>
+        {% if user.is_staff %}
+          <a href="{% url 'catalog:staff-dashboard' %}" class="nav-link-mobile">Dashboard</a>
+        {% endif %}
         <form action="{% url 'accounts:logout' %}" method="POST">
           {% csrf_token %}
           <button type="submit" class="w-full text-left nav-link-mobile">Logout</button>
@@ -111,4 +122,20 @@
       line3.classList.remove('-translate-y-2', '-rotate-45')
     }
   })
+
+  const avatarBtn = document.getElementById('avatarBtn')
+  const avatarMenu = document.getElementById('avatarMenu')
+
+  if (avatarBtn) {
+    avatarBtn.addEventListener('click', (e) => {
+      e.stopPropagation()
+      avatarMenu.classList.toggle('hidden')
+    })
+
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('avatarDropdown').contains(e.target)) {
+        avatarMenu.classList.add('hidden')
+      }
+    })
+  }
 </script>

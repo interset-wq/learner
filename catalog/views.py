@@ -10,7 +10,24 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from .models import Book, Author, BookInstance, Genre, Language, Tag, Record
-from catalog.forms import RenewBookForm, BookSearchForm
+from catalog.forms import RenewBookForm, BookSearchForm, BookForm
+
+
+def user_profile(request, username):
+    from django.contrib.auth.models import User
+    profile_user = get_object_or_404(User, username=username)
+    borrowed = BookInstance.objects.filter(
+        borrower=profile_user, status='o'
+    ).order_by('due_back')
+    history = Record.objects.filter(
+        borrower=profile_user
+    ).order_by('-borrow_date')[:20]
+    context = {
+        'profile_user': profile_user,
+        'borrowed': borrowed,
+        'history': history,
+    }
+    return render(request, 'catalog/user_profile.html', context)
 
 
 def index(request):
@@ -66,7 +83,6 @@ class BookListView(generic.ListView):
             queryset = queryset.filter(
                 Q(title__icontains=q)
                 | Q(author__name__icontains=q)
-                | Q(isbn__icontains=q)
             )
         return queryset
 
@@ -260,13 +276,13 @@ class AuthorDelete(PermissionRequiredMixin, DeleteView):
 
 class BookCreate(PermissionRequiredMixin, CreateView):
     model = Book
-    fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language', 'tags']
+    form_class = BookForm
     permission_required = 'catalog.add_book'
 
 
 class BookUpdate(PermissionRequiredMixin, UpdateView):
     model = Book
-    fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language', 'tags']
+    form_class = BookForm
     permission_required = 'catalog.change_book'
 
 

@@ -134,7 +134,6 @@ erDiagram
         varchar title
         int author_id FK
         text summary
-        varchar isbn
         int genre_id FK
         int language_id FK
     }
@@ -167,8 +166,10 @@ erDiagram
 
 ### Schema Changes
 
-- **Author**: `first_name` + `last_name` → `name`
-- **Genre-Book**: M:N → 1:N (Book has `genre_id` FK)
-- **Tag**: New table, M:N with Book
-- **BookInstance**: Use int `id` as primary key (not UUID), remove `isbn` field
-- **Record**: New table for borrowing records
+- **Author**: `first_name` + `last_name` → `name` (done)
+- **Author**: removed `first_name`, `last_name` fields (done)
+- **Genre-Book**: M:N → 1:N (Book has `genre_id` FK) (done)
+- **Tag**: New table, M:N with Book (done)
+- **BookInstance**: Use int `id` as primary key (not UUID) (done)
+- **Book**: removed `isbn` field (done)
+- **Record**: New table for borrowing records (done)

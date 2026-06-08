@@ -98,6 +98,7 @@
 
 .django-form select {
   appearance: none;
+  cursor: pointer;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 0.75rem center;
   background-repeat: no-repeat;
@@ -122,10 +123,71 @@
   margin-right: 0.5rem;
   vertical-align: middle;
   border-radius: 0.25rem;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.dark .django-form input[type="checkbox"],
+.dark .django-form input[type="radio"] {
+  accent-color: #60a5fa;
 }
 
 .django-form input[type="radio"] {
   border-radius: 50%;
+}
+
+.django-form .checkbox-group {
+  max-height: 12rem;
+  overflow-y: auto;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dark .django-form .checkbox-group {
+  border-color: #4b5563;
+}
+
+.django-form .checkbox-group::-webkit-scrollbar {
+  width: 6px;
+}
+
+.django-form .checkbox-group::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.django-form .checkbox-group::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 3px;
+}
+
+.dark .django-form .checkbox-group::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark .django-form .checkbox-group::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+.django-form .checkbox-group label {
+  display: flex;
+  align-items: center;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.django-form .checkbox-group label:hover {
+  background-color: #f3f4f6;
+}
+
+.dark .django-form .checkbox-group label:hover {
+  background-color: #374151;
 }
 
 .django-form .errorlist {
