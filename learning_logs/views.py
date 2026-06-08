@@ -81,6 +81,10 @@ def entry_detail(request, entry_id):
     root_count = root_comments.count()
     shown_comments = root_comments[:COMMENTS_PER_PAGE]
     has_more = root_count > COMMENTS_PER_PAGE
+    liked = (
+        request.user.is_authenticated
+        and entry.liked_by.filter(pk=request.user.pk).exists()
+    )
 
     context = {
         "entry": entry,
@@ -91,6 +95,7 @@ def entry_detail(request, entry_id):
         "has_more_comments": has_more,
         "total_comments": total_comments,
         "shown_count": min(root_count, COMMENTS_PER_PAGE),
+        "liked": liked,
     }
     return render(request, "learning_logs/entry_detail.html", context)
 
