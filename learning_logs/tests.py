@@ -420,8 +420,43 @@ class ReplyCommentTest(TestCase):
         response = self.client.post(url, {"text": "My reply"})
         self.assertEqual(response.status_code, 302)
         reply = Comment.objects.get(parent=comment)
-        self.assertEqual(reply.text, "My reply")
+        self.assertIn("@testuser", reply.text)
+        self.assertIn("My reply", reply.text)
         self.assertEqual(reply.user, user)
+
+    def test_reply_requires_login(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        comment = Comment.objects.create(entry=entry, user=user, text="Original")
+        url = reverse("learning_logs:reply_comment", args=[comment.id])
+        response = self.client.post(url, {"text": "Reply"})
+        self.assertEqual(response.status_code, 302)
+
+    def test_reply_preserves_existing_mention(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        comment = Comment.objects.create(entry=entry, user=user, text="Original")
+        url = reverse("learning_logs:reply_comment", args=[comment.id])
+        response = self.client.post(url, {"text": "@testuser already mentioned"})
+        self.assertEqual(response.status_code, 302)
+        reply = Comment.objects.get(parent=comment)
+        self.assertEqual(reply.text, "@testuser already mentioned")
+
+    def test_reply_preserves_existing_at_sign(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        comment = Comment.objects.create(entry=entry, user=user, text="Original")
+        url = reverse("learning_logs:reply_comment", args=[comment.id])
+        response = self.client.post(url, {"text": "@someone else's comment"})
+        self.assertEqual(response.status_code, 302)
+        reply = Comment.objects.get(parent=comment)
+        self.assertTrue(reply.text.startswith("@someone"))
 
     def test_reply_requires_login(self):
         user = create_user()

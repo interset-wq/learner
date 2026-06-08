@@ -1,3 +1,4 @@
+{% load comment_tags %}
 <div class="comment-item relative {% if depth > 0 %}ml-6 sm:ml-10{% endif %}" id="comment-{{ comment.id }}">
   <div class="flex items-start gap-3 py-3 group relative">
     {% if depth > 0 %}
@@ -20,7 +21,7 @@
           </button>
         {% endif %}
       </div>
-      <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">{{ comment.text }}</p>
+      <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">{{ comment.text|highlight_mentions }}</p>
       <div class="mt-2 flex items-center gap-3">
         <button class="reply-toggle text-xs text-gray-400 hover:text-blue-500 transition-colors duration-200 flex items-center gap-1"
                 data-comment-id="{{ comment.id }}">
@@ -34,7 +35,7 @@
       <div id="reply-form-{{ comment.id }}" class="hidden mt-3">
         <div class="flex gap-2">
           <input type="text" class="reply-input flex-1 px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200"
-                 placeholder="Reply to {{ comment.user.username }}..." maxlength="1000" data-comment-id="{{ comment.id }}">
+                 placeholder="Reply to {{ comment.user.username }}..." maxlength="1000" data-comment-id="{{ comment.id }}" data-username="{{ comment.user.username }}">
           <button class="reply-submit px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors duration-200"
                   data-comment-id="{{ comment.id }}">Reply</button>
         </div>

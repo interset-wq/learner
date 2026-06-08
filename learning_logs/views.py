@@ -182,6 +182,9 @@ def reply_comment(request, comment_id):
         raise Http404
     text = request.POST.get("text", "").strip()
     if text:
+        mention = f"@{parent.user.username} "
+        if not text.startswith("@"):
+            text = mention + text
         comment = Comment.objects.create(
             entry=entry, user=request.user, parent=parent, text=text
         )
