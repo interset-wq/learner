@@ -6,7 +6,7 @@ Django 6.0.5 learning log application with Tailwind CSS 4.x styling.
 
 ## Versioning
 
-Each iteration must update `pyproject.toml` version and `site_config.toml` version.
+Each iteration must update `pyproject.toml` version.
 
 ## Package Managers
 

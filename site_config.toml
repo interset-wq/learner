@@ -1,6 +1,6 @@
 [site]
 name = "Django Demos"
-version = "1.0.0"
 
 [pagination]
-style = "load_more"
+# Options: "traditional" | "load_more"
+style = "traditional"
