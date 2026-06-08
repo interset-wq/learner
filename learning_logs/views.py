@@ -1,13 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 
 from config.mixins import LoadMoreMixin
-from learning_logs.forms import EntryForm, TopicForm
-from learning_logs.models import Entry, Topic
+from learning_logs.forms import CommentForm, EntryForm, TopicForm
+from learning_logs.models import Comment, Entry, Topic
 
 
 def index(request):
@@ -96,3 +97,48 @@ def edit_entry(request, entry_id):
             return redirect(reverse("learning_logs:topic", args=[topic.id]))
     context = {"form": form, "topic": topic, "entry": entry}
     return render(request, "learning_logs/edit_entry.html", context)
+
+
+@login_required
+@require_POST
+def toggle_like(request, entry_id):
+    entry = get_object_or_404(Entry, pk=entry_id)
+    if not entry.topic.is_public or not entry.is_public:
+        raise Http404
+    if request.user in entry.liked_by.all():
+        entry.liked_by.remove(request.user)
+        liked = False
+    else:
+        entry.liked_by.add(request.user)
+        liked = True
+    return JsonResponse({"liked": liked, "count": entry.like_count})
+
+
+@login_required
+@require_POST
+def add_comment(request, entry_id):
+    entry = get_object_or_404(Entry, pk=entry_id)
+    if not entry.topic.is_public or not entry.is_public:
+        raise Http404
+    form = CommentForm(data=request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.entry = entry
+        comment.user = request.user
+        comment.save()
+    return redirect(
+        reverse("learning_logs:topic", args=[entry.topic.id]) + f"#entry-{entry.id}"
+    )
+
+
+@login_required
+@require_POST
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    entry = comment.entry
+    if comment.user != request.user and entry.topic.owner != request.user:
+        raise Http404
+    comment.delete()
+    return redirect(
+        reverse("learning_logs:topic", args=[entry.topic.id]) + f"#entry-{entry.id}"
+    )

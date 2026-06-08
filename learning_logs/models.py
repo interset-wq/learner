@@ -20,6 +20,7 @@ class Entry(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     is_public = models.BooleanField(default=False)
+    liked_by = models.ManyToManyField(User, related_name="liked_entries", blank=True)
 
     class Meta:
         verbose_name_plural = "entries"
@@ -34,6 +35,14 @@ class Entry(models.Model):
         super().save(*args, **kwargs)
 
     @property
+    def like_count(self):
+        return self.liked_by.count()
+
+    @property
+    def comment_count(self):
+        return self.comments.count()
+
+    @property
     def rendered_text(self):
         return mark_safe(
             markdown.markdown(
@@ -44,3 +53,16 @@ class Entry(models.Model):
                 },
             )
         )
+
+
+class Comment(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.username}: {self.text[:30]}"
