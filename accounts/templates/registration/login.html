@@ -17,8 +17,11 @@
     {#    </ul>#}
     {#  {% endif %}#}
 
-    <form method="post" action="{% url 'accounts:login' %}" class="django-form">
+    <form method="post" action="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" class="django-form">
       {% csrf_token %}
+      {% if request.GET.next %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+      {% endif %}
       {{ form.as_div }}
 
       <button type="submit"
