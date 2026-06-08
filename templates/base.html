@@ -16,8 +16,10 @@
 
   {% block css %}{% endblock %}
   {% block head_js %}{% endblock %}
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
 </head>
-<body class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
+<body class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 {% block header %}
   {% include "components/header.html" %}
 {% endblock %}

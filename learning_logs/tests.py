@@ -258,13 +258,11 @@ class LikeTest(TestCase):
         url = reverse("learning_logs:toggle_like", args=[entry.id])
         response = self.client.post(url)
         self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertTrue(data["liked"])
-        self.assertEqual(data["count"], 1)
+        self.assertIn(b"like-btn", response.content)
+        self.assertTrue(entry.liked_by.filter(pk=user.pk).exists())
         response = self.client.post(url)
-        data = response.json()
-        self.assertFalse(data["liked"])
-        self.assertEqual(data["count"], 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(entry.liked_by.filter(pk=user.pk).exists())
 
     def test_like_requires_login(self):
         user = create_user()
@@ -301,7 +299,7 @@ class CommentTest(TestCase):
         entry = create_entry(topic, "content", title="Test", is_public=True)
         url = reverse("learning_logs:add_comment", args=[entry.id])
         response = self.client.post(url, {"text": "Great post!"})
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(
             Comment.objects.filter(entry=entry, user=user, text="Great post!").exists()
         )
@@ -331,7 +329,7 @@ class CommentTest(TestCase):
         comment = Comment.objects.create(entry=entry, user=user, text="My comment")
         url = reverse("learning_logs:delete_comment", args=[comment.id])
         response = self.client.post(url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Comment.objects.filter(pk=comment.id).exists())
 
     def test_delete_comment_by_topic_owner(self):
@@ -343,7 +341,7 @@ class CommentTest(TestCase):
         comment = Comment.objects.create(entry=entry, user=commenter, text="Hello")
         url = reverse("learning_logs:delete_comment", args=[comment.id])
         response = self.client.post(url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Comment.objects.filter(pk=comment.id).exists())
 
     def test_cannot_delete_others_comment(self):
@@ -418,7 +416,7 @@ class ReplyCommentTest(TestCase):
         comment = Comment.objects.create(entry=entry, user=user, text="Original")
         url = reverse("learning_logs:reply_comment", args=[comment.id])
         response = self.client.post(url, {"text": "My reply"})
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         reply = Comment.objects.get(parent=comment)
         self.assertIn("@testuser", reply.text)
         self.assertIn("My reply", reply.text)
@@ -426,7 +424,6 @@ class ReplyCommentTest(TestCase):
 
     def test_reply_requires_login(self):
         user = create_user()
-        self.client.force_login(user)
         topic = create_topic(user, is_public=True)
         entry = create_entry(topic, "content", title="Test", is_public=True)
         comment = Comment.objects.create(entry=entry, user=user, text="Original")
@@ -442,7 +439,7 @@ class ReplyCommentTest(TestCase):
         comment = Comment.objects.create(entry=entry, user=user, text="Original")
         url = reverse("learning_logs:reply_comment", args=[comment.id])
         response = self.client.post(url, {"text": "@testuser already mentioned"})
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         reply = Comment.objects.get(parent=comment)
         self.assertEqual(reply.text, "@testuser already mentioned")
 
@@ -454,7 +451,7 @@ class ReplyCommentTest(TestCase):
         comment = Comment.objects.create(entry=entry, user=user, text="Original")
         url = reverse("learning_logs:reply_comment", args=[comment.id])
         response = self.client.post(url, {"text": "@someone else's comment"})
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         reply = Comment.objects.get(parent=comment)
         self.assertTrue(reply.text.startswith("@someone"))
 
