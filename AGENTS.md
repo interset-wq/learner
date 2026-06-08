@@ -6,7 +6,18 @@ Django 6.0.5 learning log application with Tailwind CSS 4.x styling.
 
 ## Versioning
 
-Each iteration must update `pyproject.toml` version.
+Each iteration must update `pyproject.toml` version following semantic versioning:
+
+- **MAJOR** (x.0.0): Breaking changes — database schema changes (new fields, removed fields, renamed models), incompatible API changes, major feature rewrites
+- **MINOR** (0.x.0): New features — new views, new templates, new models, new apps, backward-compatible additions
+- **PATCH** (0.0.x): Bug fixes — typo fixes, style tweaks, test fixes, documentation updates, dependency patch updates
+
+Examples:
+- Adding comment system: MINOR
+- Adding `title` field to Entry: MINOR (new feature + migration)
+- Fixing login redirect: PATCH
+- Updating README: PATCH
+- Refactoring comment depth limit: MINOR (behavior change)
 
 ## Package Managers
 
@@ -31,9 +42,15 @@ pnpm build
 # Generate fake data
 uv run python create_fake_data.py
 
-# Run tests
-uv run python manage.py test
+# Run tests — ONLY test the app you modified
+uv run python manage.py test <app_name>
 ```
+
+**NEVER run `uv run python manage.py test` without specifying an app.** Always test only the app you changed:
+- Modified `learning_logs/` → `uv run python manage.py test learning_logs`
+- Modified `catalog/` → `uv run python manage.py test catalog`
+- Modified `accounts/` → `uv run python manage.py test accounts`
+- Modified `core/` → `uv run python manage.py test core`
 
 ## App Structure
 
