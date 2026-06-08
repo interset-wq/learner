@@ -43,6 +43,10 @@ class Entry(models.Model):
         return self.comments.count()
 
     @property
+    def root_comments(self):
+        return self.comments.filter(parent__isnull=True)
+
+    @property
     def rendered_text(self):
         return mark_safe(
             markdown.markdown(
@@ -58,11 +62,23 @@ class Entry(models.Model):
 class Comment(models.Model):
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    parent = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies"
+    )
     text = models.TextField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["created_at"]
 
     def __str__(self):
         return f"{self.user.username}: {self.text[:30]}"
+
+    @property
+    def depth(self):
+        d = 0
+        parent = self.parent
+        while parent is not None:
+            d += 1
+            parent = parent.parent
+        return d

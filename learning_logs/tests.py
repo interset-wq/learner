@@ -387,3 +387,60 @@ class EntryModelLikeCommentTest(TestCase):
         entry.refresh_from_db()
         self.assertEqual(entry.like_count, 1)
         self.assertEqual(entry.comment_count, 1)
+
+    def test_root_comments(self):
+        user = create_user()
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        root = Comment.objects.create(entry=entry, user=user, text="Root")
+        Comment.objects.create(entry=entry, user=user, text="Reply", parent=root)
+        self.assertEqual(entry.root_comments.count(), 1)
+        self.assertEqual(entry.root_comments.first(), root)
+
+    def test_comment_depth(self):
+        user = create_user()
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        c1 = Comment.objects.create(entry=entry, user=user, text="L1")
+        c2 = Comment.objects.create(entry=entry, user=user, text="L2", parent=c1)
+        c3 = Comment.objects.create(entry=entry, user=user, text="L3", parent=c2)
+        self.assertEqual(c1.depth, 0)
+        self.assertEqual(c2.depth, 1)
+        self.assertEqual(c3.depth, 2)
+
+
+class ReplyCommentTest(TestCase):
+    def test_reply_to_comment(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        comment = Comment.objects.create(entry=entry, user=user, text="Original")
+        url = reverse("learning_logs:reply_comment", args=[comment.id])
+        response = self.client.post(url, {"text": "My reply"})
+        self.assertEqual(response.status_code, 302)
+        reply = Comment.objects.get(parent=comment)
+        self.assertEqual(reply.text, "My reply")
+        self.assertEqual(reply.user, user)
+
+    def test_reply_requires_login(self):
+        user = create_user()
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        comment = Comment.objects.create(entry=entry, user=user, text="Original")
+        url = reverse("learning_logs:reply_comment", args=[comment.id])
+        response = self.client.post(url, {"text": "Reply"})
+        self.assertEqual(response.status_code, 302)
+
+    def test_nested_reply(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        c1 = Comment.objects.create(entry=entry, user=user, text="L1")
+        c2 = Comment.objects.create(entry=entry, user=user, text="L2", parent=c1)
+        url = reverse("learning_logs:reply_comment", args=[c2.id])
+        response = self.client.post(url, {"text": "L3 reply"})
+        self.assertEqual(response.status_code, 302)
+        c3 = Comment.objects.get(parent=c2)
+        self.assertEqual(c3.depth, 2)

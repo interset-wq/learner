@@ -142,3 +142,18 @@ def delete_comment(request, comment_id):
     return redirect(
         reverse("learning_logs:topic", args=[entry.topic.id]) + f"#entry-{entry.id}"
     )
+
+
+@login_required
+@require_POST
+def reply_comment(request, comment_id):
+    parent = get_object_or_404(Comment, pk=comment_id)
+    entry = parent.entry
+    if not entry.topic.is_public or not entry.is_public:
+        raise Http404
+    text = request.POST.get("text", "").strip()
+    if text:
+        Comment.objects.create(entry=entry, user=request.user, parent=parent, text=text)
+    return redirect(
+        reverse("learning_logs:topic", args=[entry.topic.id]) + f"#entry-{entry.id}"
+    )
