@@ -23,7 +23,7 @@
       <div class="flex items-start gap-3">
         <a href="{% url 'accounts:public_profile' topic.owner.username %}" class="flex-shrink-0">
           <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-sm font-bold text-white hover:ring-2 hover:ring-blue-400 transition-all duration-200">
-            {{ entry.title|first|upper }}
+            {{ topic.owner.username|first|upper }}
           </div>
         </a>
         <div class="flex-1 min-w-0">
