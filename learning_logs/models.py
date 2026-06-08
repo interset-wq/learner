@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
+import markdown
 
-# Create your models here.
+
 class Topic(models.Model):
     text = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
@@ -23,3 +25,13 @@ class Entry(models.Model):
         if len(self.text) > 47:
             return self.text[:50] + '...'
         return self.text
+
+    @property
+    def rendered_text(self):
+        return mark_safe(markdown.markdown(
+            self.text,
+            extensions=['fenced_code', 'codehilite', 'tables', 'toc'],
+            extension_configs={
+                'codehilite': {'css_class': 'highlight', 'guess_lang': False}
+            }
+        ))

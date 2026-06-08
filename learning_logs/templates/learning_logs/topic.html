@@ -1,6 +1,11 @@
 {% extends 'learning_logs/base.html' %}
+{% load static %}
 
 {% block title %}Topic{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'learning_logs/css/pygments.css' %}">
+{% endblock %}
 
 {% block content %}
   <div class="max-w-3xl mx-auto">
@@ -24,7 +29,7 @@
               Edit entry
             </a>
           </div>
-          <p class="text-gray-800 dark:text-gray-200 text-lg leading-relaxed">{{ entry.text|linebreaks }}</p>
+          <div class="markdown-body text-gray-800 dark:text-gray-200 text-lg leading-relaxed">{{ entry.rendered_text }}</div>
         </li>
       {% empty %}
         <li class="col-span-full py-20 text-center bg-gray-50 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">

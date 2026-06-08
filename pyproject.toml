@@ -1,12 +1,14 @@
 [project]
 name = "learning-log"
-version = "1.0.0"
+version = "1.1.0"
 description = "A collection of Django demo applications: catalog, learning logs, polls, and accounts"
 readme = "README.md"
 requires-python = ">=3.13"
 license = "MIT"
 dependencies = [
     "django>=6.0.5",
+    "markdown>=3.10.2",
+    "pygments>=2.20.0",
     "python-dotenv>=1.0.0",
 ]
 
