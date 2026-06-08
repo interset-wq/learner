@@ -2,13 +2,15 @@
 
 A collection of Django demo applications showcasing modern web development patterns.
 
+**Version**: 1.0.0
+
 ## Tech Stack
 
 - **Django 6.0.5** — Python web framework
 - **Tailwind CSS 4.x** — Utility-first CSS
 - **SQLite** — Database
-- **Python 3.13** (uv package manager)
-- **Node.js** (pnpm for Tailwind)
+- **Python 3.13** with [uv](https://docs.astral.sh/uv/)
+- **Node.js 22+** with [pnpm](https://pnpm.io/)
 
 ## Apps
 
@@ -23,7 +25,7 @@ A local library management system.
 - Search books by title or author
 - User profiles with borrowing history
 
-**URL**: `/catalog/`
+**URL**: `/catalog/` | [README](catalog/README.md)
 
 ### Learning Logs
 
@@ -33,7 +35,7 @@ A personal learning journal.
 - User isolation (each user sees only their own data)
 - Edit entries to track progress over time
 
-**URL**: `/learning_logs/`
+**URL**: `/learning_logs/` | [README](learning_logs/README.md)
 
 ### Polls (Core)
 
@@ -43,17 +45,17 @@ A polling application.
 - Vote on questions (atomic counting with F expressions)
 - View results with progress bars
 
-**URL**: `/core/`
+**URL**: `/core/` | [README](core/README.md)
 
 ### Accounts
 
 Authentication and profile management (Django built-in auth).
 
 - Login, logout, registration
-- Profile editing
+- Profile editing with role badges
 - Password change and reset
 
-**URL**: `/accounts/`
+**URL**: `/accounts/` | [README](accounts/README.md)
 
 ## Quick Start
 
@@ -92,6 +94,17 @@ docker compose down
 
 Access: http://localhost:8000 | Admin: `admin` / `admin123`
 
+Run `make help` to see all available commands.
+
+## Configuration
+
+| File | Purpose |
+|------|---------|
+| `.env` | Environment variables (SECRET_KEY, DEBUG, etc.) |
+| `.env.example` | Template with all available variables |
+| `site_config.toml` | Site name, pagination style |
+| `pyproject.toml` | Python dependencies and project metadata |
+
 ## Project Structure
 
 ```
@@ -100,10 +113,13 @@ learning_log/
 ├── core/             # Polls app
 ├── learning_logs/    # Personal learning journal
 ├── accounts/         # Authentication
-├── config/           # Django settings
-├── templates/        # Root templates
+├── config/           # Django settings, mixins, TOML loader
+├── templates/        # Root templates and components
 ├── static/           # Static assets (Tailwind CSS output)
+├── .env              # Environment variables
 ├── site_config.toml  # Site configuration
+├── Makefile          # Linux/macOS shortcuts
+├── Dockerfile        # Docker build
 └── create_fake_data.py
 ```
 
@@ -112,12 +128,20 @@ learning_log/
 | Username | Password | Role |
 |----------|----------|------|
 | `admin` | `admin123` | Superuser |
-| `librarian1` | `staff123` | Staff (borrow/return) |
-| `librarian2` | `staff123` | Staff (borrow/return) |
-| `librarian3` | `staff123` | Staff (borrow/return) |
+| `librarian1` | `staff123` | Staff (all catalog permissions) |
+| `librarian2` | `staff123` | Staff (all catalog permissions) |
+| `librarian3` | `staff123` | Staff (all catalog permissions) |
 | `librarian` | `staff123` | Staff (borrow/return only) |
 | `catalog_editor` | `staff123` | Staff (add/edit catalog) |
 | `catalog_viewer` | `staff123` | Staff (read-only) |
+
+## Testing
+
+```bash
+uv run python manage.py test
+```
+
+CI runs automatically on push/PR to main via GitHub Actions.
 
 ## License
 
