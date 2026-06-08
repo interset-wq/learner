@@ -1,8 +1,8 @@
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 import datetime  # for checking renewal date range.
 
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from .models import Book
 
@@ -10,27 +10,28 @@ from .models import Book
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ['title', 'author', 'summary', 'genre', 'language', 'tags']
+        fields = ["title", "author", "summary", "genre", "language", "tags"]
         widgets = {
-            'tags': forms.CheckboxSelectMultiple(attrs={'class': 'checkbox-group'}),
+            "tags": forms.CheckboxSelectMultiple(attrs={"class": "checkbox-group"}),
         }
 
 
 class RenewBookForm(forms.Form):
     """Form for a librarian to renew books."""
+
     renewal_date = forms.DateField(
-            help_text="Enter a date between now and 4 weeks (default 3).")
+        help_text="Enter a date between now and 4 weeks (default 3)."
+    )
 
     def clean_renewal_date(self):
-        data = self.cleaned_data['renewal_date']
+        data = self.cleaned_data["renewal_date"]
 
         # Check date is not in past.
         if data < datetime.date.today():
-            raise ValidationError(_('Invalid date - renewal in past'))
+            raise ValidationError(_("Invalid date - renewal in past"))
         # Check date is in range librarian allowed to change (+4 weeks)
         if data > datetime.date.today() + datetime.timedelta(weeks=4):
-            raise ValidationError(
-                _('Invalid date - renewal more than 4 weeks ahead'))
+            raise ValidationError(_("Invalid date - renewal more than 4 weeks ahead"))
 
         # Remember to always return the cleaned data.
         return data
@@ -39,6 +40,6 @@ class RenewBookForm(forms.Form):
 class BookSearchForm(forms.Form):
     q = forms.CharField(
         required=False,
-        label='',
-        widget=forms.TextInput(attrs={'placeholder': 'Search by title or author...'}),
+        label="",
+        widget=forms.TextInput(attrs={"placeholder": "Search by title or author..."}),
     )

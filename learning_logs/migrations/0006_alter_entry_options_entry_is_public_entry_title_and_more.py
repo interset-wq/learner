@@ -6,27 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('learning_logs', '0005_topic_owner'),
+        ("learning_logs", "0005_topic_owner"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='entry',
-            options={'ordering': ['-date_added'], 'verbose_name_plural': 'entries'},
+            name="entry",
+            options={"ordering": ["-date_added"], "verbose_name_plural": "entries"},
         ),
         migrations.AddField(
-            model_name='entry',
-            name='is_public',
+            model_name="entry",
+            name="is_public",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='entry',
-            name='title',
-            field=models.CharField(default='Untitled', max_length=200),
+            model_name="entry",
+            name="title",
+            field=models.CharField(default="Untitled", max_length=200),
         ),
         migrations.AddField(
-            model_name='topic',
-            name='is_public',
+            model_name="topic",
+            name="is_public",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -15,4 +15,5 @@ dependencies = [
 [dependency-groups]
 dev = [
     "faker>=40.21.0",
+    "pre-commit>=4.6.0",
 ]
