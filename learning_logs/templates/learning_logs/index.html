@@ -6,16 +6,16 @@
   <div class="text-center mb-12">
     <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Learning Logs</h1>
     <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-      Keep track of the topics you're learning and record your learning journey.
+      A personal learning journal with Markdown support, social features, and real-time interactions powered by HTMX.
     </p>
     <div class="flex justify-center gap-4 mt-6">
       <a href="{% url 'learning_logs:topics' %}"
         class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-700 hover:bg-green-800 transition-all duration-300 shadow-sm hover:shadow-lg">
-        Start Learning
+        My Topics
       </a>
-      <a href="{% url 'accounts:register' %}"
+      <a href="{% url 'learning_logs:public_topics' %}"
         class="inline-flex items-center px-6 py-3 border border-green-700 dark:border-green-500 text-base font-medium rounded-md text-green-700 dark:text-green-400 bg-white dark:bg-gray-800 hover:bg-green-50 dark:hover:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md">
-        Register
+        Explore
       </a>
     </div>
   </div>
@@ -31,37 +31,92 @@ erDiagram
         varchar text
         datetime date_added
         int owner_id FK
+        bool is_public
     }
 
     Entry {
         int id PK
+        varchar title
         text text
         datetime date_added
         int topic_id FK
+        bool is_public
+    }
+
+    Comment {
+        int id PK
+        int entry_id FK
+        int user_id FK
+        int parent_id FK
+        text text
+        datetime created_at
     }
 
     User ||--o{ Topic : "owns"
     Topic ||--o{ Entry : "has"
+    Entry ||--o{ Comment : "has"
+    Entry }o--o{ User : "liked_by"
+    User ||--o{ Comment : "writes"
+    Comment ||--o{ Comment : "replies"
     </pre>
   </div>
 
-  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Features</h2>
+  <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6">Features</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
-      <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Topic Management</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-300">Create and organize learning topics with full CRUD support.</p>
+      <div class="flex items-center gap-2 mb-2">
+        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        <h3 class="font-semibold text-gray-900 dark:text-white">Markdown Editor</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Write entries in Markdown with EasyMDE. Supports code blocks, tables, images, and live preview.</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
-      <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Entry Tracking</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-300">Record learning entries under each topic with timestamps.</p>
+      <div class="flex items-center gap-2 mb-2">
+        <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+        <h3 class="font-semibold text-gray-900 dark:text-white">Social Interactions</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Like entries, leave comments with @mentions, and share links. Powered by HTMX for real-time updates.</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
-      <h3 class="font-semibold text-gray-900 dark:text-white mb-2">User Isolation</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-300">Each user sees only their own topics and entries.</p>
+      <div class="flex items-center gap-2 mb-2">
+        <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        <h3 class="font-semibold text-gray-900 dark:text-white">Comment Threads</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Nested replies (max 2 levels), click-to-reply with auto @mention, collapsible threads, infinite scroll.</p>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
-      <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Pagination</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-300">Topics list supports pagination for easy browsing.</p>
+      <div class="flex items-center gap-2 mb-2">
+        <svg class="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <h3 class="font-semibold text-gray-900 dark:text-white">Explore</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Discover public topics and entries from other users. Browse the community learning feed.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-2 mb-2">
+        <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        <h3 class="font-semibold text-gray-900 dark:text-white">Visibility Control</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Choose public or private for each topic and entry. Private content is only visible to the owner.</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-5 border border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-2 mb-2">
+        <svg class="w-5 h-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <h3 class="font-semibold text-gray-900 dark:text-white">HTMX Powered</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Likes, comments, and infinite scroll work without page reloads. Minimal JavaScript, maximum interactivity.</p>
     </div>
   </div>
 </div>
