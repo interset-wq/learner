@@ -52,21 +52,15 @@
 
           {% if topic.is_public and entry.is_public %}
           <div class="flex items-center gap-1 mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/50 -ml-2">
-            <button class="like-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 group
-                    {% if user in entry.liked_by.all %}text-red-500{% else %}text-gray-500 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20{% endif %}"
-                    data-entry-id="{{ entry.id }}"
-                    {% if not user.is_authenticated %}disabled title="Login to like"{% endif %}>
-              <svg class="w-[18px] h-[18px] transition-transform duration-200 group-active:scale-125" fill="{% if user in entry.liked_by.all %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              <span class="like-count text-xs font-medium">{{ entry.like_count }}</span>
-            </button>
+            <div id="like-btn">
+              {% include "learning_logs/components/like_button.html" with entry=entry liked=user in entry.liked_by.all user=user %}
+            </div>
 
             <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-blue-500">
               <svg class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z" />
               </svg>
-              <span class="comment-count text-xs font-medium">{{ total_comments }}</span>
+              <span id="comment-count" class="text-xs font-medium">{{ total_comments }}</span>
             </button>
 
             <button class="share-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full text-gray-500 dark:text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200"
@@ -85,8 +79,11 @@
     {% if topic.is_public and entry.is_public %}
     <div id="comments-section" class="mb-6">
       {% if user.is_authenticated %}
-      <form id="comment-form" class="flex gap-3 mb-6">
-        {% csrf_token %}
+      <form hx-post="{% url 'learning_logs:add_comment' entry.id %}"
+            hx-target="#comments-list"
+            hx-swap="afterbegin"
+            hx-on::after-request="if(event.detail.successful) this.reset()"
+            class="flex gap-3 mb-6">
         <a href="{% url 'accounts:public_profile' user.username %}" class="flex-shrink-0">
           <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs font-bold text-white hover:ring-2 hover:ring-blue-400 transition-all duration-200">
             {{ user.username|first|upper }}
@@ -108,10 +105,20 @@
       </div>
 
       {% if has_more_comments %}
-      <div id="load-more-comments" class="mt-4 text-center">
-        <button id="load-more-btn" class="px-5 py-2.5 text-sm text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-all duration-200 font-medium">
-          Load more comments
-        </button>
+      <div id="load-more-marker"
+           hx-get="{% url 'learning_logs:load_more_comments' entry.id %}?offset={{ shown_count }}"
+           hx-trigger="revealed"
+           hx-swap="outerHTML"
+           hx-target="this">
+        <div class="mt-4 text-center">
+          <div class="inline-flex items-center gap-2 px-5 py-2.5 text-sm text-gray-400">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Loading comments...
+          </div>
+        </div>
       </div>
       {% endif %}
     </div>
@@ -119,29 +126,24 @@
   </div>
 
 <script>
-const csrfToken = '{{ csrf_token }}';
-const currentUsername = '{{ user.username }}';
-const entryId = {{ entry.id }};
-let nextOffset = {{ shown_count }};
-
-// Click any comment (root or reply) to @mention
+// Click any comment to @mention in main input
 document.addEventListener('click', (e) => {
   const commentBody = e.target.closest('.comment-body, .reply-body');
   if (!commentBody) return;
-  if (e.target.closest('a, button, input, .reply-form')) return;
+  if (e.target.closest('a, button, input, .reply-form, [hx-post], [hx-delete]')) return;
 
   const commentItem = commentBody.closest('.comment-item');
   const commentId = commentItem?.dataset.commentId;
   if (!commentId) return;
 
-  // If it's a root comment, show its reply form
+  // Root comment: show its reply form
   const replyForm = document.getElementById(`reply-form-${commentId}`);
   if (replyForm) {
     document.querySelectorAll('.reply-form:not(.hidden)').forEach(f => {
       if (f !== replyForm) f.classList.add('hidden');
     });
     replyForm.classList.remove('hidden');
-    const input = replyForm.querySelector('.reply-input');
+    const input = replyForm.querySelector('input[name="text"]');
     const username = commentBody.querySelector('.username')?.textContent?.trim();
     if (input && username && !input.value.startsWith('@')) {
       input.value = `@${username} `;
@@ -150,7 +152,7 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // If it's a sub-comment, focus main input with @mention
+  // Sub-comment: focus main input with @mention
   const username = commentBody.querySelector('.username')?.textContent?.trim();
   const mainInput = document.getElementById('comment-input');
   if (mainInput && username) {
@@ -160,199 +162,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-function createCommentElement(data, parentId) {
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = data.html;
-  const el = wrapper.firstElementChild;
-  el.classList.add('animate-slideIn');
-  wireUpComment(el);
-  return el;
-}
-
-function wireUpComment(el) {
-  el.querySelector('.delete-comment-btn')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    deleteComment(e.currentTarget.dataset.commentId);
-  });
-
-  el.querySelector('.reply-toggle')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const commentId = e.currentTarget.dataset.commentId;
-    const form = document.getElementById(`reply-form-${commentId}`);
-    if (!form) return;
-    document.querySelectorAll('.reply-form:not(.hidden)').forEach(f => {
-      if (f !== form) f.classList.add('hidden');
-    });
-    form.classList.toggle('hidden');
-    if (!form.classList.contains('hidden')) {
-      const input = form.querySelector('.reply-input');
-      const username = e.currentTarget.dataset.username;
-      if (input && username && !input.value.startsWith('@')) {
-        input.value = `@${username} `;
-      }
-      input?.focus();
-    }
-  });
-
-  el.querySelector('.reply-submit')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    submitReply(e.currentTarget.dataset.commentId);
-  });
-
-  const input = el.querySelector('.reply-input');
-  if (input) {
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        submitReply(input.dataset.commentId);
-      }
-    });
-    input.addEventListener('click', (e) => e.stopPropagation());
-  }
-}
-
-function updateCommentCount(delta) {
-  const countEl = document.querySelector('.comment-count');
-  if (countEl) {
-    const current = parseInt(countEl.textContent) || 0;
-    countEl.textContent = Math.max(0, current + delta);
-  }
-}
-
-async function submitReply(commentId) {
-  const input = document.querySelector(`#reply-form-${commentId} .reply-input`);
-  const text = input.value.trim();
-  if (!text) return;
-
-  const res = await fetch(`/learning_logs/comment/${commentId}/reply/`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': csrfToken,
-      'X-Requested-With': 'XMLHttpRequest',
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `text=${encodeURIComponent(text)}`,
-  });
-
-  const data = await res.json();
-  if (data.success) {
-    let repliesContainer = document.getElementById(`replies-${commentId}`);
-    if (repliesContainer.classList.contains('hidden')) {
-      repliesContainer.classList.remove('hidden');
-    }
-    const el = createCommentElement(data, commentId);
-    repliesContainer.appendChild(el);
-    input.value = '';
-    document.getElementById(`reply-form-${commentId}`).classList.add('hidden');
-    updateCommentCount(1);
-  }
-}
-
-async function deleteComment(commentId) {
-  const res = await fetch(`/learning_logs/comment/${commentId}/delete/`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': csrfToken,
-      'X-Requested-With': 'XMLHttpRequest',
-    },
-  });
-
-  const data = await res.json();
-  if (data.success) {
-    const el = document.getElementById(`comment-${commentId}`);
-    if (el) {
-      el.style.transition = 'opacity 0.2s, transform 0.2s';
-      el.style.opacity = '0';
-      el.style.transform = 'translateX(-20px)';
-      setTimeout(() => el.remove(), 200);
-    }
-    updateCommentCount(-1);
-  }
-}
-
-// Main comment form
-document.getElementById('comment-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const input = document.getElementById('comment-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  const res = await fetch(`/learning_logs/entry/${entryId}/comment/`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': csrfToken,
-      'X-Requested-With': 'XMLHttpRequest',
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `text=${encodeURIComponent(text)}`,
-  });
-
-  const data = await res.json();
-  if (data.success) {
-    const list = document.getElementById('comments-list');
-    const el = createCommentElement(data, null);
-    list.prepend(el);
-    input.value = '';
-    updateCommentCount(1);
-  }
-});
-
-// Load more comments
-document.getElementById('load-more-btn')?.addEventListener('click', async () => {
-  const btn = document.getElementById('load-more-btn');
-  btn.textContent = 'Loading...';
-  btn.disabled = true;
-
-  const res = await fetch(`/learning_logs/entry/${entryId}/comments/?offset=${nextOffset}`);
-  const data = await res.json();
-
-  if (data.html.trim()) {
-    const list = document.getElementById('comments-list');
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = data.html;
-    while (wrapper.firstChild) {
-      const child = wrapper.firstChild;
-      list.appendChild(child);
-      if (child.nodeType === 1) wireUpComment(child);
-    }
-    nextOffset = data.next_offset;
-  }
-
-  if (data.has_more) {
-    btn.textContent = 'Load more comments';
-    btn.disabled = false;
-  } else {
-    document.getElementById('load-more-comments')?.remove();
-  }
-});
-
-// Like button
-document.querySelectorAll('.like-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    if (btn.disabled) return;
-    const res = await fetch(`/learning_logs/entry/${entryId}/like/`, {
-      method: 'POST',
-      headers: { 'X-CSRFToken': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
-    });
-    const data = await res.json();
-    const svg = btn.querySelector('svg');
-    const count = btn.querySelector('.like-count');
-    count.textContent = data.count;
-    if (data.liked) {
-      btn.classList.remove('text-gray-500', 'dark:text-gray-400', 'hover:bg-red-50', 'dark:hover:bg-red-900/20');
-      btn.classList.add('text-red-500');
-      svg.setAttribute('fill', 'currentColor');
-      svg.classList.add('animate-like');
-      setTimeout(() => svg.classList.remove('animate-like'), 400);
-    } else {
-      btn.classList.remove('text-red-500');
-      btn.classList.add('text-gray-500', 'dark:text-gray-400', 'hover:bg-red-50', 'dark:hover:bg-red-900/20');
-      svg.setAttribute('fill', 'none');
-    }
-  });
-});
-
-// Share button
+// Share button (clipboard API - no server needed)
 document.querySelectorAll('.share-btn').forEach(btn => {
   btn.addEventListener('click', async () => {
     const url = btn.dataset.url;
@@ -364,29 +174,58 @@ document.querySelectorAll('.share-btn').forEach(btn => {
   });
 });
 
-// Toggle replies (collapse/expand)
-document.querySelectorAll('.toggle-replies').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const commentId = btn.dataset.commentId;
-    const replies = document.getElementById(`replies-${commentId}`);
-    replies.classList.toggle('hidden');
-    btn.querySelector('svg').classList.toggle('rotate-180');
-  });
+// Toggle replies collapse/expand
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.toggle-replies');
+  if (!btn) return;
+  const commentId = btn.dataset.commentId;
+  const replies = document.getElementById(`replies-${commentId}`);
+  if (!replies) return;
+  replies.classList.toggle('hidden');
+  btn.querySelector('svg').classList.toggle('rotate-180');
 });
 
-// Wire up existing comment interactions
-document.querySelectorAll('.comment-item').forEach(wireUpComment);
+// Reply toggle (show/hide reply form for root comments)
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.reply-toggle');
+  if (!btn) return;
+  const commentId = btn.dataset.commentId;
+  const form = document.getElementById(`reply-form-${commentId}`);
+  if (!form) return;
+  document.querySelectorAll('.reply-form:not(.hidden)').forEach(f => {
+    if (f !== form) f.classList.add('hidden');
+  });
+  form.classList.toggle('hidden');
+  if (!form.classList.contains('hidden')) {
+    const input = form.querySelector('input[name="text"]');
+    const username = btn.dataset.username;
+    if (input && username && !input.value.startsWith('@')) {
+      input.value = `@${username} `;
+    }
+    input?.focus();
+  }
+});
+
+// Delete comment with animation
+document.addEventListener('htmx:beforeSwap', (e) => {
+  if (e.detail.requestConfig?.verb === 'delete') {
+    const target = e.detail.target;
+    if (target?.classList?.contains('comment-item')) {
+      target.style.transition = 'opacity 0.2s, transform 0.2s';
+      target.style.opacity = '0';
+      target.style.transform = 'translateX(-20px)';
+      setTimeout(() => target.remove(), 200);
+      e.detail.shouldSwap = false;
+    }
+  }
+});
 </script>
 
 <style>
-@keyframes like-pop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
-.animate-like { animation: like-pop 0.4s ease-in-out; }
-
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-slideIn { animation: slideIn 0.25s ease-out; }
+.htmx-added { animation: slideIn 0.25s ease-out; }
 </style>
 {% endblock %}

@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -13,6 +13,10 @@ from learning_logs.forms import CommentForm, EntryForm, TopicForm
 from learning_logs.models import Comment, Entry, Topic
 
 COMMENTS_PER_PAGE = 10
+
+
+def _is_htmx(request):
+    return request.headers.get("HX-Request") == "true"
 
 
 def index(request):
@@ -108,6 +112,9 @@ def load_more_comments(request, entry_id):
         )[offset : offset + limit]
     )
 
+    total_root = entry.comments.filter(parent__isnull=True).count()
+    has_more = (offset + limit) < total_root
+
     html = render_to_string(
         "learning_logs/components/comment_thread.html",
         {
@@ -117,14 +124,14 @@ def load_more_comments(request, entry_id):
         },
     )
 
-    total_root = entry.comments.filter(parent__isnull=True).count()
-    return JsonResponse(
-        {
-            "html": html,
-            "has_more": (offset + limit) < total_root,
-            "next_offset": offset + limit,
-        }
-    )
+    if has_more:
+        load_more_html = f"""
+        <div id="load-more-marker" hx-get="/learning_logs/entry/{entry.id}/comments/?offset={offset + limit}"
+             hx-trigger="revealed" hx-swap="outerHTML" hx-target="this"></div>
+        """
+        html += load_more_html
+
+    return HttpResponse(html)
 
 
 @login_required
@@ -189,14 +196,12 @@ def toggle_like(request, entry_id):
     else:
         entry.liked_by.add(request.user)
         liked = True
-    return JsonResponse({"liked": liked, "count": entry.like_count})
 
-
-def _render_comment_html(comment, user, topic_owner):
-    return render_to_string(
-        "learning_logs/components/comment_item.html",
-        {"comment": comment, "user": user, "topic_owner": topic_owner},
+    html = render_to_string(
+        "learning_logs/components/like_button.html",
+        {"entry": entry, "liked": liked, "user": request.user},
     )
+    return HttpResponse(html)
 
 
 @login_required
@@ -211,12 +216,19 @@ def add_comment(request, entry_id):
         comment.entry = entry
         comment.user = request.user
         comment.save()
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            html = _render_comment_html(comment, request.user, entry.topic.owner)
-            return JsonResponse(
-                {"success": True, "html": html, "count": entry.comment_count}
-            )
-    return redirect(reverse("learning_logs:entry_detail", args=[entry.id]))
+        html = render_to_string(
+            "learning_logs/components/comment_item.html",
+            {
+                "comment": comment,
+                "user": request.user,
+                "topic_owner": entry.topic.owner,
+            },
+        )
+        count_html = (
+            f'<span id="comment-count" hx-swap-oob="true">{entry.comment_count}</span>'
+        )
+        return HttpResponse(html + count_html)
+    return HttpResponse(status=400)
 
 
 @login_required
@@ -226,13 +238,11 @@ def delete_comment(request, comment_id):
     entry = comment.entry
     if comment.user != request.user and entry.topic.owner != request.user:
         raise Http404
-    cid = comment.id
     comment.delete()
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return JsonResponse(
-            {"success": True, "comment_id": cid, "count": entry.comment_count}
-        )
-    return redirect(reverse("learning_logs:entry_detail", args=[entry.id]))
+    count_html = (
+        f'<span id="comment-count" hx-swap-oob="true">{entry.comment_count}</span>'
+    )
+    return HttpResponse(count_html)
 
 
 @login_required
@@ -254,14 +264,17 @@ def reply_comment(request, comment_id):
         comment = Comment.objects.create(
             entry=entry, user=request.user, parent=parent, text=text
         )
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            html = _render_comment_html(comment, request.user, entry.topic.owner)
-            return JsonResponse(
-                {
-                    "success": True,
-                    "html": html,
-                    "parent_id": parent.id,
-                    "count": entry.comment_count,
-                }
-            )
-    return redirect(reverse("learning_logs:entry_detail", args=[entry.id]))
+        html = render_to_string(
+            "learning_logs/components/comment_item.html",
+            {
+                "comment": comment,
+                "user": request.user,
+                "topic_owner": entry.topic.owner,
+            },
+            request=request,
+        )
+        count_html = (
+            f'<span id="comment-count" hx-swap-oob="true">{entry.comment_count}</span>'
+        )
+        return HttpResponse(html + count_html)
+    return HttpResponse(status=400)
