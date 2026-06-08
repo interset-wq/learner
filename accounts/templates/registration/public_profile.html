@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center gap-4 mb-8">
+    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-2xl font-bold text-white">
+      {{ profile_user.username|first|upper }}
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ profile_user.username }}</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Joined {{ profile_user.date_joined|date:'M d, Y' }}</p>
+    </div>
+  </div>
+
+  <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Public Topics</h2>
+  <div class="space-y-3">
+    {% for topic in public_topics %}
+    <a href="{% url 'learning_logs:topic' topic.id %}" class="block p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-200">
+      <h3 class="font-semibold text-gray-900 dark:text-white">{{ topic.text }}</h3>
+      <p class="text-xs text-gray-400 mt-1">{{ topic.date_added|date:'M d, Y' }}</p>
+    </a>
+    {% empty %}
+    <p class="text-gray-400 dark:text-gray-500 text-sm">No public topics yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
