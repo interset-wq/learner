@@ -5,7 +5,14 @@
     <h1 class="page-title">Add a new topic</h1>
     <form method="post" class="django-form" action="{% url 'learning_logs:new_topic' %}">
       {% csrf_token %}
-      {{ form.as_div }}
+      <div class="mb-4">
+        <input type="text" name="text" id="id_text" placeholder="Topic name" class="input-field" required>
+      </div>
+      <div class="mb-4 flex items-center">
+        {{ form.is_public }}
+        <label for="id_is_public" class="text-gray-700 dark:text-gray-300">Make this topic public</label>
+      </div>
+      {{ form.is_public.errors }}
       <div>
         <button class="btn-primary">Add</button>
       </div>

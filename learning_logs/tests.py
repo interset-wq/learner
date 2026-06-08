@@ -9,12 +9,12 @@ def create_user(username='testuser', password='testpass123'):
     return User.objects.create_user(username, f'{username}@test.com', password)
 
 
-def create_topic(user, text='Test Topic'):
-    return Topic.objects.create(text=text, owner=user)
+def create_topic(user, text='Test Topic', is_public=False):
+    return Topic.objects.create(text=text, owner=user, is_public=is_public)
 
 
-def create_entry(topic, text='Test entry text.'):
-    return Entry.objects.create(text=text, topic=topic)
+def create_entry(topic, text='Test entry text.', title='Test Entry', is_public=False):
+    return Entry.objects.create(text=text, topic=topic, title=title, is_public=is_public)
 
 
 class TopicModelTest(TestCase):
@@ -23,26 +23,29 @@ class TopicModelTest(TestCase):
         topic = Topic(text='Django Basics', owner=user)
         self.assertEqual(str(topic), 'Django Basics')
 
+    def test_default_is_private(self):
+        user = create_user()
+        topic = Topic(text='Test', owner=user)
+        self.assertFalse(topic.is_public)
+
 
 class EntryModelTest(TestCase):
-    def test_str_short(self):
+    def test_str(self):
         user = create_user()
         topic = create_topic(user)
-        entry = Entry(text='Short text', topic=topic)
-        self.assertEqual(str(entry), 'Short text')
+        entry = Entry(title='My Entry', text='content', topic=topic)
+        self.assertEqual(str(entry), 'My Entry')
 
-    def test_str_long(self):
+    def test_default_is_private(self):
         user = create_user()
         topic = create_topic(user)
-        entry = Entry(text='A' * 100, topic=topic)
-        result = str(entry)
-        self.assertTrue(result.endswith('...'))
-        self.assertLessEqual(len(result), 55)
+        entry = Entry(title='Test', text='content', topic=topic)
+        self.assertFalse(entry.is_public)
 
     def test_rendered_text_markdown(self):
         user = create_user()
         topic = create_topic(user)
-        entry = Entry(text='# Heading\n\n**bold** and *italic*', topic=topic)
+        entry = Entry(title='Test', text='# Heading\n\n**bold** and *italic*', topic=topic)
         html = entry.rendered_text
         self.assertIn('<h1', html)
         self.assertIn('Heading', html)
@@ -52,7 +55,7 @@ class EntryModelTest(TestCase):
     def test_rendered_text_code_block(self):
         user = create_user()
         topic = create_topic(user)
-        entry = Entry(text='```python\nprint("hello")\n```', topic=topic)
+        entry = Entry(title='Test', text='```python\nprint("hello")\n```', topic=topic)
         html = entry.rendered_text
         self.assertIn('highlight', html)
         self.assertIn('print', html)
@@ -91,18 +94,49 @@ class TopicDetailViewTest(TestCase):
         user = create_user()
         self.client.force_login(user)
         topic = create_topic(user, 'Django Basics')
-        entry = create_entry(topic, 'My Entry')
+        entry = create_entry(topic, 'My Entry', title='Entry Title')
         response = self.client.get(reverse('learning_logs:topic', args=[topic.id]))
         self.assertContains(response, 'Django Basics')
-        self.assertContains(response, 'My Entry')
+        self.assertContains(response, 'Entry Title')
 
-    def test_other_user_cannot_view(self):
+    def test_other_user_cannot_view_private(self):
         owner = create_user('owner')
         other = create_user('other')
         self.client.force_login(other)
         topic = create_topic(owner)
         response = self.client.get(reverse('learning_logs:topic', args=[topic.id]))
         self.assertEqual(response.status_code, 404)
+
+    def test_other_user_can_view_public_topic(self):
+        owner = create_user('owner')
+        other = create_user('other')
+        self.client.force_login(other)
+        topic = create_topic(owner, 'Public Topic', is_public=True)
+        entry = create_entry(topic, 'content', title='Public Entry', is_public=True)
+        response = self.client.get(reverse('learning_logs:topic', args=[topic.id]))
+        self.assertContains(response, 'Public Topic')
+        self.assertContains(response, 'Public Entry')
+
+    def test_public_topic_hides_private_entries(self):
+        owner = create_user('owner')
+        other = create_user('other')
+        self.client.force_login(other)
+        topic = create_topic(owner, 'Public Topic', is_public=True)
+        create_entry(topic, 'content', title='Private Entry', is_public=False)
+        create_entry(topic, 'content', title='Public Entry', is_public=True)
+        response = self.client.get(reverse('learning_logs:topic', args=[topic.id]))
+        self.assertContains(response, 'Public Entry')
+        self.assertNotContains(response, 'Private Entry')
+
+    def test_owner_sees_all_entries(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, 'My Topic')
+        create_entry(topic, 'content', title='Private Entry', is_public=False)
+        create_entry(topic, 'content', title='Public Entry', is_public=True)
+        response = self.client.get(reverse('learning_logs:topic', args=[topic.id]))
+        self.assertContains(response, 'Private Entry')
+        self.assertContains(response, 'Public Entry')
 
 
 class NewTopicViewTest(TestCase):
@@ -117,6 +151,14 @@ class NewTopicViewTest(TestCase):
         self.assertRedirects(response, reverse('learning_logs:topics'))
         self.assertTrue(Topic.objects.filter(text='New Topic', owner=user).exists())
 
+    def test_create_public_topic(self):
+        user = create_user()
+        self.client.force_login(user)
+        response = self.client.post(reverse('learning_logs:new_topic'), {'text': 'Public', 'is_public': 'on'})
+        self.assertRedirects(response, reverse('learning_logs:topics'))
+        topic = Topic.objects.get(text='Public', owner=user)
+        self.assertTrue(topic.is_public)
+
 
 class NewEntryViewTest(TestCase):
     def test_create_entry(self):
@@ -125,10 +167,22 @@ class NewEntryViewTest(TestCase):
         topic = create_topic(user)
         response = self.client.post(
             reverse('learning_logs:new_entry', args=[topic.id]),
-            {'text': 'New entry content'}
+            {'title': 'New Entry', 'text': 'New entry content'}
         )
         self.assertRedirects(response, reverse('learning_logs:topic', args=[topic.id]))
-        self.assertTrue(Entry.objects.filter(text='New entry content', topic=topic).exists())
+        self.assertTrue(Entry.objects.filter(title='New Entry', topic=topic).exists())
+
+    def test_create_public_entry(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user)
+        response = self.client.post(
+            reverse('learning_logs:new_entry', args=[topic.id]),
+            {'title': 'Public', 'text': 'content', 'is_public': 'on'}
+        )
+        self.assertRedirects(response, reverse('learning_logs:topic', args=[topic.id]))
+        entry = Entry.objects.get(title='Public', topic=topic)
+        self.assertTrue(entry.is_public)
 
 
 class EditEntryViewTest(TestCase):
@@ -136,11 +190,12 @@ class EditEntryViewTest(TestCase):
         user = create_user()
         self.client.force_login(user)
         topic = create_topic(user)
-        entry = create_entry(topic, 'Original text')
+        entry = create_entry(topic, 'Original text', title='Original')
         response = self.client.post(
             reverse('learning_logs:edit_entry', args=[entry.id]),
-            {'text': 'Updated text'}
+            {'title': 'Updated', 'text': 'Updated text'}
         )
         self.assertRedirects(response, reverse('learning_logs:topic', args=[topic.id]))
         entry.refresh_from_db()
+        self.assertEqual(entry.title, 'Updated')
         self.assertEqual(entry.text, 'Updated text')

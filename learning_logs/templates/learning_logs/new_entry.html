@@ -1,4 +1,5 @@
 {% extends 'learning_logs/base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto">
@@ -9,23 +10,33 @@
   <form action="{% url 'learning_logs:new_entry' topic.id %}" method="post" class="django-form">
     {% csrf_token %}
     <div class="mb-4">
+      <input type="text" name="title" id="id_title" placeholder="Entry title" class="input-field" value="{{ form.title.value|default:'' }}" required>
+    </div>
+    {{ form.title.errors }}
+    <div class="mb-4">
       <textarea name="text" id="id_text">{{ form.text.value|default:'' }}</textarea>
     </div>
     {{ form.text.errors }}
+    <div class="mb-4 flex items-center">
+      {{ form.is_public }}
+      <label for="id_is_public" class="text-gray-700 dark:text-gray-300">Make this entry public</label>
+    </div>
+    {{ form.is_public.errors }}
     <div>
       <button class="btn-primary">Add entry</button>
     </div>
   </form>
 </div>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
-<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<link rel="stylesheet" href="{% static 'learning_logs/css/easymde.min.css' %}">
+<script src="{% static 'learning_logs/js/easymde.min.js' %}"></script>
 <script>
   const easyMDE = new EasyMDE({
     element: document.getElementById('id_text'),
     spellChecker: false,
     placeholder: 'Write your entry in Markdown...',
     minHeight: '300px',
+    previewClass: ['editor-preview', 'markdown-body'],
     toolbar: [
       'bold', 'italic', 'heading', '|',
       'quote', 'unordered-list', 'ordered-list', '|',

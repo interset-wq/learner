@@ -10,16 +10,10 @@ from learning_logs.models import Topic, Entry
 from config.mixins import LoadMoreMixin
 
 
-# Create your views here.
 def index(request):
     return render(request, 'learning_logs/index.html')
 
 
-# @login_required
-# def topics(request):
-#     topics = Topic.objects.filter(owner=request.user).order_by('-date_added')
-#     context = {'topics': topics}
-#     return render(request, 'learning_logs/topics.html', context)
 class TopicListView(LoadMoreMixin, LoginRequiredMixin, ListView):
     model = Topic
     template_name = "learning_logs/topics.html"
@@ -30,12 +24,16 @@ class TopicListView(LoadMoreMixin, LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Topic.objects.filter(owner=self.request.user).order_by("-date_added")
 
+
 @login_required
 def topic(request, topic_id):
     t = get_object_or_404(Topic, pk=topic_id)
-    if t.owner != request.user:
+    if t.owner != request.user and not t.is_public:
         raise Http404
-    context = {'topic': t}
+    entries = t.entry_set.all()
+    if t.owner != request.user:
+        entries = entries.filter(is_public=True)
+    context = {'topic': t, 'entries': entries, 'is_owner': t.owner == request.user}
     return render(request, 'learning_logs/topic.html', context)
 
 
@@ -76,6 +74,8 @@ def new_entry(request, topic_id):
 def edit_entry(request, entry_id):
     entry = get_object_or_404(Entry, pk=entry_id)
     topic = entry.topic
+    if topic.owner != request.user:
+        raise Http404
     if request.method != 'POST':
         form = EntryForm(instance=entry)
     else:
