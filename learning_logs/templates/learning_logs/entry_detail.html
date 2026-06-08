@@ -21,12 +21,14 @@
 
     <article class="pb-6 mb-6 border-b border-gray-100 dark:border-gray-700/50">
       <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-          {{ entry.title|first|upper }}
-        </div>
+        <a href="{% url 'accounts:public_profile' topic.owner.username %}" class="flex-shrink-0">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-sm font-bold text-white hover:ring-2 hover:ring-blue-400 transition-all duration-200">
+            {{ entry.title|first|upper }}
+          </div>
+        </a>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
-            <span class="font-bold text-gray-900 dark:text-white">{{ topic.owner.username }}</span>
+            <a href="{% url 'accounts:public_profile' topic.owner.username %}" class="font-bold text-gray-900 dark:text-white hover:text-blue-500 transition-colors">{{ topic.owner.username }}</a>
             {% if entry.is_public %}
               <span class="text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 px-1.5 py-0.5 rounded-full font-medium">Public</span>
             {% endif %}
@@ -85,9 +87,11 @@
       {% if user.is_authenticated %}
       <form id="comment-form" class="flex gap-3 mb-6">
         {% csrf_token %}
-        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-          {{ user.username|first|upper }}
-        </div>
+        <a href="{% url 'accounts:public_profile' user.username %}" class="flex-shrink-0">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs font-bold text-white hover:ring-2 hover:ring-blue-400 transition-all duration-200">
+            {{ user.username|first|upper }}
+          </div>
+        </a>
         <div class="flex-1">
           <input type="text" name="text" id="comment-input" placeholder="Post a reply..."
                  class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all duration-200 placeholder:text-gray-400"
@@ -102,6 +106,14 @@
       <div id="comments-list" class="space-y-0">
         {% include "learning_logs/components/comment_thread.html" with comments=root_comments topic_owner=topic.owner %}
       </div>
+
+      {% if entry.comment_count > 10 %}
+      <div id="load-more-comments" class="mt-4 text-center">
+        <button class="load-more-btn px-4 py-2 text-sm text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200">
+          Load more comments
+        </button>
+      </div>
+      {% endif %}
     </div>
     {% endif %}
   </div>
@@ -109,61 +121,74 @@
 <script>
 const csrfToken = '{{ csrf_token }}';
 const currentUsername = '{{ user.username }}';
-const currentUserInitial = '{{ user.username|first|upper }}';
 const entryId = {{ entry.id }};
 const topicOwnerId = {{ topic.owner.id }};
 
-function getAvatarGradient(username) {
-  const colors = [
-    'from-blue-500 to-indigo-600', 'from-emerald-500 to-teal-600',
-    'from-purple-500 to-pink-600', 'from-orange-500 to-red-600',
-    'from-cyan-500 to-blue-600', 'from-rose-500 to-fuchsia-600',
-    'from-amber-500 to-orange-600', 'from-lime-500 to-green-600',
-  ];
-  let hash = 0;
-  for (let i = 0; i < username.length; i++) {
-    hash = ((hash << 5) - hash) + username.charCodeAt(i);
-    hash |= 0;
+// Click comment body to reply
+document.addEventListener('click', (e) => {
+  const commentBody = e.target.closest('.comment-body');
+  if (!commentBody) return;
+  if (e.target.closest('a, button, input, .reply-form')) return;
+
+  const commentItem = commentBody.closest('.comment-item');
+  const commentId = commentItem.dataset.commentId;
+  const form = document.getElementById(`reply-form-${commentId}`);
+  if (!form) return;
+
+  // Close all other reply forms
+  document.querySelectorAll('.reply-form:not(.hidden)').forEach(f => {
+    if (f !== form) f.classList.add('hidden');
+  });
+
+  form.classList.remove('hidden');
+  const input = form.querySelector('.reply-input');
+  const username = commentBody.querySelector('.text-sm.font-semibold')?.textContent || '';
+  if (input && username && !input.value.startsWith('@')) {
+    input.value = `@${username} `;
   }
-  return colors[Math.abs(hash) % colors.length];
-}
+  input?.focus();
+});
 
 function createCommentElement(data, parentId) {
   const wrapper = document.createElement('div');
   wrapper.innerHTML = data.html;
   const el = wrapper.firstElementChild;
   el.classList.add('animate-slideIn');
-
-  // Wire up delete button
-  const deleteBtn = el.querySelector('.delete-comment-btn');
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', () => deleteComment(deleteBtn.dataset.commentId));
-  }
-
-  // Wire up reply toggle
-  const replyToggle = el.querySelector('.reply-toggle');
-  if (replyToggle) {
-    replyToggle.addEventListener('click', () => {
-      const form = document.getElementById(`reply-form-${replyToggle.dataset.commentId}`);
-      form.classList.toggle('hidden');
-      if (!form.classList.contains('hidden')) form.querySelector('input').focus();
-    });
-  }
-
-  // Wire up reply submit
-  const replySubmit = el.querySelector('.reply-submit');
-  if (replySubmit) {
-    replySubmit.addEventListener('click', () => submitReply(replySubmit.dataset.commentId));
-  }
-
-  const replyInput = el.querySelector('.reply-input');
-  if (replyInput) {
-    replyInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') submitReply(replyInput.dataset.commentId);
-    });
-  }
-
+  wireUpComment(el);
   return el;
+}
+
+function wireUpComment(el) {
+  el.querySelector('.delete-comment-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    deleteComment(e.currentTarget.dataset.commentId);
+  });
+
+  el.querySelector('.reply-toggle')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const commentId = e.currentTarget.dataset.commentId;
+    const form = document.getElementById(`reply-form-${commentId}`);
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) {
+      form.querySelector('input').focus();
+    }
+  });
+
+  el.querySelector('.reply-submit')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    submitReply(e.currentTarget.dataset.commentId);
+  });
+
+  const input = el.querySelector('.reply-input');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitReply(input.dataset.commentId);
+      }
+    });
+    input.addEventListener('click', (e) => e.stopPropagation());
+  }
 }
 
 function updateCommentCount(delta) {
@@ -191,9 +216,9 @@ async function submitReply(commentId) {
 
   const data = await res.json();
   if (data.success) {
-    const repliesContainer = document.getElementById(`replies-${commentId}`);
-    if (!repliesContainer.children.length) {
-      repliesContainer.innerHTML = '';
+    let repliesContainer = document.getElementById(`replies-${commentId}`);
+    if (repliesContainer.classList.contains('hidden')) {
+      repliesContainer.classList.remove('hidden');
     }
     const el = createCommentElement(data, commentId);
     repliesContainer.appendChild(el);
@@ -290,41 +315,26 @@ document.querySelectorAll('.share-btn').forEach(btn => {
   });
 });
 
-// Reply toggles (existing comments)
-document.querySelectorAll('.reply-toggle').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const commentId = btn.dataset.commentId;
-    const form = document.getElementById(`reply-form-${commentId}`);
-    form.classList.toggle('hidden');
-    if (!form.classList.contains('hidden')) form.querySelector('input').focus();
-  });
-});
-
-// Reply submit (existing comments)
-document.querySelectorAll('.reply-submit').forEach(btn => {
-  btn.addEventListener('click', () => submitReply(btn.dataset.commentId));
-});
-
-document.querySelectorAll('.reply-input').forEach(input => {
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') submitReply(input.dataset.commentId);
-  });
-});
-
-// Delete buttons (existing comments)
-document.querySelectorAll('.delete-comment-btn').forEach(btn => {
-  btn.addEventListener('click', () => deleteComment(btn.dataset.commentId));
-});
-
-// Toggle replies (existing comments)
+// Toggle replies (collapse/expand)
 document.querySelectorAll('.toggle-replies').forEach(btn => {
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
     const commentId = btn.dataset.commentId;
     const replies = document.getElementById(`replies-${commentId}`);
     replies.classList.toggle('hidden');
     btn.querySelector('svg').classList.toggle('rotate-180');
+    const count = replies.children.length;
+    const label = btn.childNodes[btn.childNodes.length - 1];
+    if (replies.classList.contains('hidden')) {
+      btn.querySelector('svg').classList.remove('rotate-180');
+    } else {
+      btn.querySelector('svg').classList.add('rotate-180');
+    }
   });
 });
+
+// Wire up existing comment interactions
+document.querySelectorAll('.comment-item').forEach(wireUpComment);
 </script>
 
 <style>
