@@ -49,6 +49,21 @@ def topic(request, topic_id):
     return render(request, "learning_logs/topic.html", context)
 
 
+def entry_detail(request, entry_id):
+    entry = get_object_or_404(Entry, pk=entry_id)
+    topic = entry.topic
+    is_owner = request.user.is_authenticated and topic.owner == request.user
+    if not is_owner and (not topic.is_public or not entry.is_public):
+        raise Http404
+    context = {
+        "entry": entry,
+        "topic": topic,
+        "is_owner": is_owner,
+        "topic_owner": topic.owner,
+    }
+    return render(request, "learning_logs/entry_detail.html", context)
+
+
 @login_required
 def new_topic(request):
     if request.method != "POST":
