@@ -126,7 +126,7 @@
   </div>
 
 <script>
-// Click any comment to @mention in main input
+// Click any comment to @mention
 document.addEventListener('click', (e) => {
   const commentBody = e.target.closest('.comment-body, .reply-body');
   if (!commentBody) return;
@@ -134,7 +134,40 @@ document.addEventListener('click', (e) => {
 
   const commentItem = commentBody.closest('.comment-item');
   const commentId = commentItem?.dataset.commentId;
+  const parentId = commentItem?.dataset.parentId;
   if (!commentId) return;
+
+  const username = commentBody.querySelector('.username')?.textContent?.trim();
+
+  // Sub-comment: open parent's reply form with @mention
+  if (parentId) {
+    const parentForm = document.getElementById(`reply-form-${parentId}`);
+    if (parentForm) {
+      // Expand parent's replies if collapsed
+      const parentReplies = document.getElementById(`replies-${parentId}`);
+      if (parentReplies?.classList.contains('hidden')) {
+        parentReplies.classList.remove('hidden');
+      }
+      document.querySelectorAll('.reply-form:not(.hidden)').forEach(f => {
+        if (f !== parentForm) f.classList.add('hidden');
+      });
+      parentForm.classList.remove('hidden');
+      const input = parentForm.querySelector('input[name="text"]');
+      if (input && username) {
+        input.value = `@${username} `;
+      }
+      input?.focus();
+      return;
+    }
+    // No parent form found, use main input
+    const mainInput = document.getElementById('comment-input');
+    if (mainInput && username) {
+      mainInput.value = `@${username} `;
+      mainInput.focus();
+      mainInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
 
   // Root comment: show its reply form
   const replyForm = document.getElementById(`reply-form-${commentId}`);
@@ -144,21 +177,11 @@ document.addEventListener('click', (e) => {
     });
     replyForm.classList.remove('hidden');
     const input = replyForm.querySelector('input[name="text"]');
-    const username = commentBody.querySelector('.username')?.textContent?.trim();
     if (input && username && !input.value.startsWith('@')) {
       input.value = `@${username} `;
     }
     input?.focus();
     return;
-  }
-
-  // Sub-comment: focus main input with @mention
-  const username = commentBody.querySelector('.username')?.textContent?.trim();
-  const mainInput = document.getElementById('comment-input');
-  if (mainInput && username) {
-    mainInput.value = `@${username} `;
-    mainInput.focus();
-    mainInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 });
 

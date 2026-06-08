@@ -1,6 +1,6 @@
 [project]
 name = "learning-log"
-version = "2.0.0"
+version = "2.0.1"
 description = "A collection of Django demo applications: catalog, learning logs, polls, and accounts"
 readme = "README.md"
 requires-python = ">=3.13"
