@@ -201,11 +201,19 @@ document.querySelectorAll('.share-btn').forEach(btn => {
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.toggle-replies');
   if (!btn) return;
+  e.stopPropagation();
+  e.preventDefault();
   const commentId = btn.dataset.commentId;
   const replies = document.getElementById(`replies-${commentId}`);
   if (!replies) return;
+  const isHidden = replies.classList.contains('hidden');
   replies.classList.toggle('hidden');
-  btn.querySelector('svg').classList.toggle('rotate-180');
+  const svg = btn.querySelector('svg');
+  if (isHidden) {
+    svg.classList.add('rotate-180');
+  } else {
+    svg.classList.remove('rotate-180');
+  }
 });
 
 // Reply toggle (show/hide reply form for root comments)
