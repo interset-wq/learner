@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from .models import Entry, Topic
+from .models import Comment, Entry, Topic
 
 
 def create_user(username="testuser", password="testpass123"):
@@ -247,3 +247,143 @@ class PublicTopicListViewTest(TestCase):
         response = self.client.get(reverse("learning_logs:public_topics"))
         self.assertContains(response, "User1 Public")
         self.assertContains(response, "User2 Public")
+
+
+class LikeTest(TestCase):
+    def test_toggle_like(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        url = reverse("learning_logs:toggle_like", args=[entry.id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["liked"])
+        self.assertEqual(data["count"], 1)
+        response = self.client.post(url)
+        data = response.json()
+        self.assertFalse(data["liked"])
+        self.assertEqual(data["count"], 0)
+
+    def test_like_requires_login(self):
+        user = create_user()
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        url = reverse("learning_logs:toggle_like", args=[entry.id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_cannot_like_private_entry(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=False)
+        url = reverse("learning_logs:toggle_like", args=[entry.id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_cannot_like_private_topic_entry(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=False)
+        entry = create_entry(topic, "content", title="Test", is_public=False)
+        url = reverse("learning_logs:toggle_like", args=[entry.id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 404)
+
+
+class CommentTest(TestCase):
+    def test_add_comment(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        url = reverse("learning_logs:add_comment", args=[entry.id])
+        response = self.client.post(url, {"text": "Great post!"})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            Comment.objects.filter(entry=entry, user=user, text="Great post!").exists()
+        )
+
+    def test_add_comment_requires_login(self):
+        user = create_user()
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        url = reverse("learning_logs:add_comment", args=[entry.id])
+        response = self.client.post(url, {"text": "Hi"})
+        self.assertEqual(response.status_code, 302)
+
+    def test_cannot_comment_on_private_entry(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=False)
+        url = reverse("learning_logs:add_comment", args=[entry.id])
+        response = self.client.post(url, {"text": "Hi"})
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_comment_by_author(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        comment = Comment.objects.create(entry=entry, user=user, text="My comment")
+        url = reverse("learning_logs:delete_comment", args=[comment.id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Comment.objects.filter(pk=comment.id).exists())
+
+    def test_delete_comment_by_topic_owner(self):
+        owner = create_user("owner")
+        commenter = create_user("commenter")
+        self.client.force_login(owner)
+        topic = create_topic(owner, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        comment = Comment.objects.create(entry=entry, user=commenter, text="Hello")
+        url = reverse("learning_logs:delete_comment", args=[comment.id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Comment.objects.filter(pk=comment.id).exists())
+
+    def test_cannot_delete_others_comment(self):
+        owner = create_user("owner")
+        commenter = create_user("commenter")
+        other = create_user("other")
+        self.client.force_login(other)
+        topic = create_topic(owner, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        comment = Comment.objects.create(entry=entry, user=commenter, text="Hello")
+        url = reverse("learning_logs:delete_comment", args=[comment.id])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 404)
+
+
+class EntryModelLikeCommentTest(TestCase):
+    def test_like_count(self):
+        user = create_user()
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        self.assertEqual(entry.like_count, 0)
+        entry.liked_by.add(user)
+        self.assertEqual(entry.like_count, 1)
+
+    def test_comment_count(self):
+        user = create_user()
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        self.assertEqual(entry.comment_count, 0)
+        Comment.objects.create(entry=entry, user=user, text="Hi")
+        self.assertEqual(entry.comment_count, 1)
+
+    def test_likes_preserved_when_topic_becomes_private(self):
+        user = create_user()
+        topic = create_topic(user, is_public=True)
+        entry = create_entry(topic, "content", title="Test", is_public=True)
+        entry.liked_by.add(user)
+        Comment.objects.create(entry=entry, user=user, text="Hi")
+        topic.is_public = False
+        topic.save()
+        entry.refresh_from_db()
+        self.assertEqual(entry.like_count, 1)
+        self.assertEqual(entry.comment_count, 1)

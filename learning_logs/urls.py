@@ -12,4 +12,9 @@ urlpatterns = [
     path("new_topic/", views.new_topic, name="new_topic"),
     path("new_entry/<int:topic_id>/", views.new_entry, name="new_entry"),
     path("edit_entry/<int:entry_id>/", views.edit_entry, name="edit_entry"),
+    path("entry/<int:entry_id>/like/", views.toggle_like, name="toggle_like"),
+    path("entry/<int:entry_id>/comment/", views.add_comment, name="add_comment"),
+    path(
+        "comment/<int:comment_id>/delete/", views.delete_comment, name="delete_comment"
+    ),
 ]
