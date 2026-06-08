@@ -1,5 +1,6 @@
 import os
-from random import randint, choice, sample, uniform
+import sys
+from random import randint, choice, sample, uniform, seed as set_seed
 from datetime import timedelta, date
 
 from faker import Faker
@@ -14,7 +15,10 @@ from learning_logs.models import Topic, Entry
 from core.models import Question, Choice
 from django.contrib.auth.models import User
 
+SEED = 42
 fake = Faker()
+Faker.seed(SEED)
+set_seed(SEED)
 
 
 def delete_all():
@@ -32,18 +36,51 @@ def delete_all():
     User.objects.filter(is_superuser=False).delete()
 
 
+def create_staff_users():
+    staff_data = [
+        ('admin', 'admin@example.com', 'admin123', True, False),
+        ('librarian1', 'lib1@example.com', 'staff123', False, True),
+        ('librarian2', 'lib2@example.com', 'staff123', False, True),
+        ('librarian3', 'lib3@example.com', 'staff123', False, True),
+    ]
+    created = []
+    for username, email, password, is_superuser, is_staff in staff_data:
+        if User.objects.filter(username=username).exists():
+            print(f"  {username} already exists, skipping")
+            created.append(User.objects.get(username=username))
+            continue
+        if is_superuser:
+            user = User.objects.create_superuser(username, email, password)
+        else:
+            user = User.objects.create_user(username, email, password, is_staff=is_staff)
+            from django.contrib.auth.models import Permission
+            perms = Permission.objects.filter(codename__in=[
+                'can_mark_returned', 'add_book', 'change_book', 'delete_book',
+                'add_author', 'change_author', 'delete_author',
+                'add_genre', 'change_genre', 'delete_genre',
+                'add_language', 'change_language', 'delete_language',
+                'add_bookinstance', 'change_bookinstance', 'delete_bookinstance',
+                'add_tag', 'change_tag', 'delete_tag',
+                'add_record', 'change_record', 'delete_record',
+            ])
+            user.user_permissions.set(perms)
+        created.append(user)
+        print(f"  Created {username}")
+    return created
+
+
 def create_users(count):
     users = []
-    for _ in range(count):
-        username = fake.user_name() + str(randint(100, 9999))
+    for i in range(count):
+        username = f'user{i+1}'
         user = User(
             username=username,
-            email=fake.email(),
+            email=f'{username}@example.com',
         )
         user.set_password('testpass123')
         users.append(user)
     User.objects.bulk_create(users)
-    print(f"Created User: {count}")
+    print(f"  Created {count} regular users")
     return list(User.objects.all())
 
 
@@ -103,7 +140,6 @@ def create_catalog_data(book_count, instance_min, instance_max):
             title=fake.sentence(nb_words=randint(2, 6), variable_nb_words=True).rstrip("."),
             author=choice(author_list),
             summary=fake.paragraph(nb_sentences=randint(2, 5)),
-            isbn=fake.isbn13(),
             genre=choice(genre_list),
             language=choice(lang_list),
         ))
@@ -119,7 +155,7 @@ def create_catalog_data(book_count, instance_min, instance_max):
     for book in Book.objects.all():
         num_instances = randint(instance_min, instance_max)
         for _ in range(num_instances):
-            status = choices(statuses, status_weights)
+            status = weighted_choice(statuses, status_weights)
             borrower = None
             due_back = None
             if status == 'o' and users:
@@ -160,16 +196,16 @@ def create_catalog_data(book_count, instance_min, instance_max):
             ))
     Record.objects.bulk_create(records)
 
-    print(f"Created Genre: {len(genres)}")
-    print(f"Created Language: {len(languages)}")
-    print(f"Created Tag: {len(tags)}")
-    print(f"Created Author: {len(authors)}")
-    print(f"Created Book: {len(books)}")
-    print(f"Created BookInstance: {len(book_instances)}")
-    print(f"Created Record: {len(records)}")
+    print(f"  Genre: {len(genres)}")
+    print(f"  Language: {len(languages)}")
+    print(f"  Tag: {len(tags)}")
+    print(f"  Author: {len(authors)}")
+    print(f"  Book: {len(books)}")
+    print(f"  BookInstance: {len(book_instances)}")
+    print(f"  Record: {len(records)}")
 
 
-def choices(items, weights):
+def weighted_choice(items, weights):
     total = sum(weights)
     r = uniform(0, total)
     cumulative = 0
@@ -183,7 +219,7 @@ def choices(items, weights):
 def create_learning_logs_data(topic_count, entry_range):
     users = list(User.objects.filter(is_superuser=False))
     if not users:
-        print("No users found, skipping learning_logs data")
+        print("  No users found, skipping")
         return
 
     topics = []
@@ -205,8 +241,8 @@ def create_learning_logs_data(topic_count, entry_range):
             ))
     Entry.objects.bulk_create(entries)
 
-    print(f"Created Topic: {len(topics)}")
-    print(f"Created Entry: {len(entries)}")
+    print(f"  Topic: {len(topics)}")
+    print(f"  Entry: {len(entries)}")
 
 
 def create_core_data(question_count, choice_range):
@@ -230,19 +266,29 @@ def create_core_data(question_count, choice_range):
             ))
     Choice.objects.bulk_create(choices_list)
 
-    print(f"Created Question: {len(questions)}")
-    print(f"Created Choice: {len(choices_list)}")
+    print(f"  Question: {len(questions)}")
+    print(f"  Choice: {len(choices_list)}")
 
 
 if __name__ == "__main__":
+    print("=== Creating Fake Data (seed=42) ===\n")
+
     print("Deleting existing data...")
     delete_all()
-    print("\nCreating users...")
+
+    print("Creating staff users...")
+    create_staff_users()
+
+    print("Creating regular users...")
     create_users(20)
-    print("\nCreating catalog data...")
+
+    print("Creating catalog data...")
     create_catalog_data(book_count=250, instance_min=3, instance_max=8)
-    print("\nCreating learning logs data...")
+
+    print("Creating learning logs data...")
     create_learning_logs_data(50, (3, 8))
-    print("\nCreating core data...")
+
+    print("Creating core data...")
     create_core_data(30, (2, 6))
-    print("\nDone!")
+
+    print("\nDone! Staff accounts: admin/admin123, librarian1/staff123, librarian2/staff123, librarian3/staff123")
