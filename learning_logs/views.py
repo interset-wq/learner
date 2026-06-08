@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Prefetch
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -51,16 +52,33 @@ def topic(request, topic_id):
 
 
 def entry_detail(request, entry_id):
-    entry = get_object_or_404(Entry, pk=entry_id)
+    entry = get_object_or_404(
+        Entry.objects.select_related("topic", "topic__owner"), pk=entry_id
+    )
     topic = entry.topic
     is_owner = request.user.is_authenticated and topic.owner == request.user
     if not is_owner and (not topic.is_public or not entry.is_public):
         raise Http404
+
+    comments_qs = Comment.objects.select_related("user").prefetch_related(
+        Prefetch(
+            "replies",
+            queryset=Comment.objects.select_related("user"),
+        )
+    )
+    root_comments = entry.comments.filter(parent__isnull=True).prefetch_related(
+        Prefetch(
+            "replies",
+            queryset=Comment.objects.select_related("user"),
+        )
+    )
+
     context = {
         "entry": entry,
         "topic": topic,
         "is_owner": is_owner,
         "topic_owner": topic.owner,
+        "root_comments": root_comments,
     }
     return render(request, "learning_logs/entry_detail.html", context)
 
@@ -164,11 +182,11 @@ def delete_comment(request, comment_id):
     entry = comment.entry
     if comment.user != request.user and entry.topic.owner != request.user:
         raise Http404
-    comment_id = comment.id
+    cid = comment.id
     comment.delete()
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return JsonResponse(
-            {"success": True, "comment_id": comment_id, "count": entry.comment_count}
+            {"success": True, "comment_id": cid, "count": entry.comment_count}
         )
     return redirect(reverse("learning_logs:entry_detail", args=[entry.id]))
 
@@ -176,9 +194,13 @@ def delete_comment(request, comment_id):
 @login_required
 @require_POST
 def reply_comment(request, comment_id):
-    parent = get_object_or_404(Comment, pk=comment_id)
+    parent = get_object_or_404(
+        Comment.objects.select_related("entry", "entry__topic"), pk=comment_id
+    )
     entry = parent.entry
     if not entry.topic.is_public or not entry.is_public:
+        raise Http404
+    if parent.parent_id is not None:
         raise Http404
     text = request.POST.get("text", "").strip()
     if text:

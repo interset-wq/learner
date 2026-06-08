@@ -59,7 +59,7 @@ class Entry(models.Model):
 
     @property
     def root_comments(self):
-        return self.comments.filter(parent__isnull=True)
+        return self.comments.filter(parent__isnull=True).select_related("user")
 
     @property
     def plain_text(self):
@@ -95,7 +95,12 @@ class Comment(models.Model):
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     parent = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies"
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="replies",
+        limit_choices_to={"parent__isnull": True},
     )
     text = models.TextField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -106,14 +111,14 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.user.username}: {self.text[:30]}"
 
+    def save(self, *args, **kwargs):
+        if self.parent and self.parent.parent_id is not None:
+            raise ValueError("Cannot reply to a reply. Max depth is 2.")
+        super().save(*args, **kwargs)
+
     @property
-    def depth(self):
-        d = 0
-        parent = self.parent
-        while parent is not None:
-            d += 1
-            parent = parent.parent
-        return d
+    def is_reply(self):
+        return self.parent_id is not None
 
     @property
     def avatar_gradient(self):
