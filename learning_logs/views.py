@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.views.generic import ListView
 
 from config.mixins import LoadMoreMixin
-from learning_logs.form import EntryForm, TopicForm
+from learning_logs.forms import EntryForm, TopicForm
 from learning_logs.models import Entry, Topic
 
 
@@ -69,9 +69,9 @@ def new_entry(request, topic_id):
     if topic.owner != request.user:
         raise Http404
     if request.method != "POST":
-        form = EntryForm()
+        form = EntryForm(topic=topic)
     else:
-        form = EntryForm(data=request.POST)
+        form = EntryForm(data=request.POST, topic=topic)
         if form.is_valid():
             entry = form.save(commit=False)
             entry.topic = topic
@@ -88,9 +88,9 @@ def edit_entry(request, entry_id):
     if topic.owner != request.user:
         raise Http404
     if request.method != "POST":
-        form = EntryForm(instance=entry)
+        form = EntryForm(instance=entry, topic=topic)
     else:
-        form = EntryForm(data=request.POST, instance=entry)
+        form = EntryForm(data=request.POST, instance=entry, topic=topic)
         if form.is_valid():
             form.save()
             return redirect(reverse("learning_logs:topic", args=[topic.id]))

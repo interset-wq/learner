@@ -192,7 +192,7 @@ class NewEntryViewTest(TestCase):
     def test_create_public_entry(self):
         user = create_user()
         self.client.force_login(user)
-        topic = create_topic(user)
+        topic = create_topic(user, "Public Topic", is_public=True)
         response = self.client.post(
             reverse("learning_logs:new_entry", args=[topic.id]),
             {"title": "Public", "text": "content", "is_public": "on"},
@@ -200,6 +200,14 @@ class NewEntryViewTest(TestCase):
         self.assertRedirects(response, reverse("learning_logs:topic", args=[topic.id]))
         entry = Entry.objects.get(title="Public", topic=topic)
         self.assertTrue(entry.is_public)
+
+    def test_private_topic_entry_is_forced_private(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user, "Private Topic", is_public=False)
+        entry = Entry(title="Test", text="content", topic=topic, is_public=True)
+        entry.save()
+        self.assertFalse(entry.is_public)
 
 
 class EditEntryViewTest(TestCase):
