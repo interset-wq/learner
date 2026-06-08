@@ -1,7 +1,7 @@
 {% extends 'learning_logs/base.html' %}
 {% load static %}
 
-{% block title %}Topic{% endblock %}
+{% block title %}{{ topic.text }}{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'learning_logs/css/pygments.css' %}">
@@ -10,26 +10,47 @@
 {% block content %}
   <div class="max-w-3xl mx-auto">
     <div class="pb-6 mb-10">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-white tracking-tight mb-4">Topic: {{ topic }}</h1>
-      <div class="flex justify-end">
-        <a href="{% url 'learning_logs:new_entry' topic.id %}"
-           class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 py-3 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg active:shadow-sm">
-          Add a new entry
-        </a>
+      <div class="flex items-center gap-3 mb-4">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">{{ topic.text }}</h1>
+        {% if topic.is_public %}
+          <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full">Public</span>
+        {% else %}
+          <span class="text-xs bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-2 py-1 rounded-full">Private</span>
+        {% endif %}
       </div>
+      {% if is_owner %}
+        <div class="flex justify-end">
+          <a href="{% url 'learning_logs:new_entry' topic.id %}"
+             class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 py-3 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg active:shadow-sm">
+            Add a new entry
+          </a>
+        </div>
+      {% endif %}
     </div>
 
     <ul class="grid grid-cols-1 gap-6 list-none p-0 m-0">
-      {% for entry in topic.entry_set.all %}
+      {% for entry in entries %}
         <li class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0">
           <div class="flex justify-between items-center mb-3">
-            <p class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ entry.date_added|date:'M d, Y H:i' }}</p>
-            <a href="{% url 'learning_logs:edit_entry' entry.id %}"
-               class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-1.5 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow">
-              Edit entry
-            </a>
+            <div class="flex items-center gap-3">
+              <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ entry.title }}</h2>
+              {% if entry.is_public %}
+                <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full">Public</span>
+              {% else %}
+                <span class="text-xs bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-2 py-1 rounded-full">Private</span>
+              {% endif %}
+            </div>
+            <div class="flex items-center gap-3">
+              <p class="text-sm text-gray-400 dark:text-gray-500 font-medium">{{ entry.date_added|date:'M d, Y H:i' }}</p>
+              {% if is_owner %}
+                <a href="{% url 'learning_logs:edit_entry' entry.id %}"
+                   class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-1.5 rounded-lg text-sm transition-all duration-300 shadow-sm hover:shadow">
+                  Edit
+                </a>
+              {% endif %}
+            </div>
           </div>
-          <div class="markdown-body text-gray-800 dark:text-gray-200 text-lg leading-relaxed">{{ entry.rendered_text }}</div>
+          <div class="markdown-body text-gray-800 dark:text-gray-200 leading-relaxed">{{ entry.rendered_text }}</div>
         </li>
       {% empty %}
         <li class="col-span-full py-20 text-center bg-gray-50 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
