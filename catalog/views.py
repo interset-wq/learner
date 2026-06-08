@@ -16,6 +16,10 @@ from config.mixins import LoadMoreMixin
 from .models import Author, Book, BookInstance, Genre, Language, Record, Tag
 
 
+def _is_htmx(request):
+    return request.headers.get("HX-Request") == "true"
+
+
 def user_profile(request, username):
     from django.contrib.auth.models import User
 
@@ -87,6 +91,11 @@ class BookListView(LoadMoreMixin, generic.ListView):
                 Q(title__icontains=q) | Q(author__name__icontains=q)
             )
         return queryset
+
+    def get_template_names(self):
+        if _is_htmx(self.request):
+            return ["catalog/partials/book_search_results.html"]
+        return super().get_template_names()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -203,6 +212,9 @@ def borrow_book(request, pk):
             borrow_date=date.today(),
         )
 
+        if _is_htmx(request):
+            return render(request, "catalog/partials/book_copy.html", {"copy": book_instance, "user": request.user})
+
         messages.success(
             request,
             f'You have borrowed "{book_instance.book.title}". Due back: {due_date}.',
@@ -237,6 +249,9 @@ def return_book(request, pk):
         book_instance.borrower = None
         book_instance.due_back = None
         book_instance.save()
+
+        if _is_htmx(request):
+            return render(request, "catalog/partials/book_copy.html", {"copy": book_instance, "user": request.user})
 
         messages.success(request, f'You have returned "{book_instance.book.title}".')
         if is_staff and not is_owner:
@@ -305,6 +320,11 @@ class BookDelete(PermissionRequiredMixin, DeleteView):
     def form_valid(self, form):
         try:
             self.object.delete()
+            if _is_htmx(self.request):
+                from django.http import HttpResponse
+                response = HttpResponse()
+                response["HX-Redirect"] = self.success_url
+                return response
             return HttpResponseRedirect(self.success_url)
         except Exception:
             return HttpResponseRedirect(

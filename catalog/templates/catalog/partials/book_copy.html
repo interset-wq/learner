@@ -1,0 +1,46 @@
+<div id="copy-{{ copy.id }}" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
+  <div class="flex items-center justify-between gap-3 mb-2">
+    <span class="px-2 py-1 text-xs font-medium rounded-full
+      {% if copy.status == 'a' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+      {% elif copy.status == 'd' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+      {% elif copy.status == 'o' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+      {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+      {{ copy.get_status_display }}
+    </span>
+    <div class="flex gap-2">
+      {% if copy.status == 'a' and user.is_authenticated %}
+        <button hx-post="{% url 'catalog:borrow-book' copy.id %}"
+                hx-target="#copy-{{ copy.id }}"
+                hx-swap="outerHTML"
+                hx-confirm="Borrow this book? It will be due back in 3 weeks."
+                class="btn-primary text-sm">
+          Borrow
+        </button>
+      {% endif %}
+      {% if copy.status == 'o' and copy.borrower == user %}
+        <button hx-post="{% url 'catalog:return-book' copy.id %}"
+                hx-target="#copy-{{ copy.id }}"
+                hx-swap="outerHTML"
+                hx-confirm="Return this book?"
+                class="btn-secondary text-sm">
+          Return
+        </button>
+      {% endif %}
+    </div>
+  </div>
+  {% if copy.status != 'a' %}
+    <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">
+      <span class="font-medium">Due:</span> {{ copy.due_back }}
+      {% if copy.is_overdue %}
+        <span class="text-red-600 dark:text-red-400 text-sm">(Overdue)</span>
+      {% endif %}
+    </p>
+  {% endif %}
+  <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">
+    <span class="font-medium">Imprint:</span> {{ copy.imprint }}
+  </p>
+  <p class="text-sm text-gray-500 dark:text-gray-400">
+    <span class="font-medium">ID:</span>
+    <a href="{{ copy.get_absolute_url }}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ copy.id }}</a>
+  </p>
+</div>

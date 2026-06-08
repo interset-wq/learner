@@ -1,0 +1,16 @@
+{% if book_list %}
+  <ul id="item-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for book in book_list %}
+      <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all duration-200">
+        <a href="{{ book.get_absolute_url }}" class="block text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline mb-1">
+          {{ book.title }}
+        </a>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ book.author }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-gray-500 dark:text-gray-400">
+    {% if search_query %}No books found matching "{{ search_query }}".{% else %}There are no books in the library.{% endif %}
+  </p>
+{% endif %}

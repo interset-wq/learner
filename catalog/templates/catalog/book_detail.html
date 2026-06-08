@@ -38,7 +38,12 @@
           <a href="{% url 'catalog:book-update' book.id %}" class="btn-secondary text-sm">Update Book</a>
         {% endif %}
         {% if not book.bookinstance_set.all and perms.catalog.delete_book %}
-          <a href="{% url 'catalog:book-delete' book.id %}" class="btn-danger text-sm">Delete Book</a>
+          <button hx-post="{% url 'catalog:book-delete' book.id %}"
+                  hx-confirm="Are you sure you want to delete '{{ book.title }}'?"
+                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                  class="btn-danger text-sm">
+            Delete Book
+          </button>
         {% endif %}
       </div>
     {% endif %}
@@ -47,7 +52,7 @@
   <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Copies</h2>
 
   {% for copy in book.bookinstance_set.all %}
-    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
+    <div id="copy-{{ copy.id }}" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
       <div class="flex items-center justify-between gap-3 mb-2">
         <span class="px-2 py-1 text-xs font-medium rounded-full
           {% if copy.status == 'a' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
@@ -56,12 +61,26 @@
           {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
           {{ copy.get_status_display }}
         </span>
-        {% if copy.status == 'a' and user.is_authenticated %}
-          <a href="{% url 'catalog:borrow-book' copy.id %}" class="btn-primary text-sm">Borrow</a>
-        {% endif %}
-        {% if copy.status == 'o' and copy.borrower == user %}
-          <a href="{% url 'catalog:return-book' copy.id %}" class="btn-secondary text-sm">Return</a>
-        {% endif %}
+        <div class="flex gap-2">
+          {% if copy.status == 'a' and user.is_authenticated %}
+            <button hx-post="{% url 'catalog:borrow-book' copy.id %}"
+                    hx-target="#copy-{{ copy.id }}"
+                    hx-swap="outerHTML"
+                    hx-confirm="Borrow this book? It will be due back in 3 weeks."
+                    class="btn-primary text-sm">
+              Borrow
+            </button>
+          {% endif %}
+          {% if copy.status == 'o' and copy.borrower == user %}
+            <button hx-post="{% url 'catalog:return-book' copy.id %}"
+                    hx-target="#copy-{{ copy.id }}"
+                    hx-swap="outerHTML"
+                    hx-confirm="Return this book?"
+                    class="btn-secondary text-sm">
+              Return
+            </button>
+          {% endif %}
+        </div>
       </div>
       {% if copy.status != 'a' %}
         <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">
