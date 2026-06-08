@@ -28,6 +28,11 @@ class Entry(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        if not self.topic.is_public:
+            self.is_public = False
+        super().save(*args, **kwargs)
+
     @property
     def rendered_text(self):
         return mark_safe(
