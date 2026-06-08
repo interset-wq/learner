@@ -3,12 +3,12 @@
 {% block title %}Explore{% endblock %}
 
 {% block content %}
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <div class="pb-6 mb-10">
       <h1 class="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">Explore Public Topics</h1>
     </div>
 
-    <ul id="item-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 list-none p-0 m-0">
+    <ul id="item-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0">
       {% for topic in topics %}
         <li class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0">
           <div class="flex items-center gap-2 mb-3">
