@@ -6,25 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0003_populate_author_name'),
+        ("catalog", "0003_populate_author_name"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='author',
-            name='first_name',
+            model_name="author",
+            name="first_name",
         ),
         migrations.RemoveField(
-            model_name='author',
-            name='last_name',
+            model_name="author",
+            name="last_name",
         ),
         migrations.RemoveField(
-            model_name='book',
-            name='isbn',
+            model_name="book",
+            name="isbn",
         ),
         migrations.AlterField(
-            model_name='author',
-            name='name',
+            model_name="author",
+            name="name",
             field=models.CharField(max_length=200),
         ),
     ]

@@ -1,7 +1,8 @@
 {
   "dependencies": {
-    "tailwindcss": "^4.3.0",
-    "@tailwindcss/cli": "^4.3.0"
+    "@tailwindcss/cli": "^4.3.0",
+    "easymde": "^2.21.0",
+    "tailwindcss": "^4.3.0"
   },
   "scripts": {
     "dev": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch",

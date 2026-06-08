@@ -1,10 +1,10 @@
-from django.urls import path, include
+from django.urls import include, path
 
 from . import views
 
-app_name = 'accounts'
+app_name = "accounts"
 urlpatterns = [
-    path('', include('django.contrib.auth.urls')),
-    path('register/', views.register, name='register'),
-    path('profile/', views.profile, name='profile'),
+    path("", include("django.contrib.auth.urls")),
+    path("register/", views.register, name="register"),
+    path("profile/", views.profile, name="profile"),
 ]

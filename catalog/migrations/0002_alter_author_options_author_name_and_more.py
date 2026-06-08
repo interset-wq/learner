@@ -9,95 +9,148 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0001_initial'),
+        ("catalog", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='author',
-            options={'ordering': ['name']},
+            name="author",
+            options={"ordering": ["name"]},
         ),
         migrations.AddField(
-            model_name='author',
-            name='name',
+            model_name="author",
+            name="name",
             field=models.CharField(blank=True, max_length=200),
         ),
         migrations.AlterField(
-            model_name='author',
-            name='first_name',
+            model_name="author",
+            name="first_name",
             field=models.CharField(blank=True, max_length=100),
         ),
         migrations.AlterField(
-            model_name='author',
-            name='last_name',
+            model_name="author",
+            name="last_name",
             field=models.CharField(blank=True, max_length=100),
         ),
         migrations.RemoveField(
-            model_name='book',
-            name='genre',
+            model_name="book",
+            name="genre",
         ),
         migrations.AlterField(
-            model_name='book',
-            name='isbn',
-            field=models.CharField(max_length=13, unique=True, verbose_name='ISBN'),
+            model_name="book",
+            name="isbn",
+            field=models.CharField(max_length=13, unique=True, verbose_name="ISBN"),
         ),
         migrations.AlterField(
-            model_name='book',
-            name='summary',
+            model_name="book",
+            name="summary",
             field=models.TextField(max_length=1000),
         ),
         migrations.AlterField(
-            model_name='bookinstance',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="bookinstance",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='bookinstance',
-            name='status',
-            field=models.CharField(blank=True, choices=[('d', 'Maintenance'), ('o', 'On loan'), ('a', 'Available'), ('r', 'Reserved')], default='d', max_length=1),
+            model_name="bookinstance",
+            name="status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("d", "Maintenance"),
+                    ("o", "On loan"),
+                    ("a", "Available"),
+                    ("r", "Reserved"),
+                ],
+                default="d",
+                max_length=1,
+            ),
         ),
         migrations.AlterField(
-            model_name='genre',
-            name='name',
+            model_name="genre",
+            name="name",
             field=models.CharField(max_length=200, unique=True),
         ),
         migrations.AlterField(
-            model_name='language',
-            name='name',
+            model_name="language",
+            name="name",
             field=models.CharField(max_length=200, unique=True),
         ),
         migrations.CreateModel(
-            name='Record',
+            name="Record",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('borrow_date', models.DateField()),
-                ('return_date', models.DateField(blank=True, null=True)),
-                ('book_instance', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, to='catalog.bookinstance')),
-                ('borrower', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("borrow_date", models.DateField()),
+                ("return_date", models.DateField(blank=True, null=True)),
+                (
+                    "book_instance",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        to="catalog.bookinstance",
+                    ),
+                ),
+                (
+                    "borrower",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-borrow_date'],
+                "ordering": ["-borrow_date"],
             },
         ),
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200, unique=True)),
             ],
             options={
-                'constraints': [models.UniqueConstraint(django.db.models.functions.text.Lower('name'), name='tag_name_case_insensitive_unique', violation_error_message='Tag already exists (case insensitive match)')],
+                "constraints": [
+                    models.UniqueConstraint(
+                        django.db.models.functions.text.Lower("name"),
+                        name="tag_name_case_insensitive_unique",
+                        violation_error_message="Tag already exists (case insensitive match)",
+                    )
+                ],
             },
         ),
         migrations.AddField(
-            model_name='book',
-            name='tags',
-            field=models.ManyToManyField(blank=True, to='catalog.tag'),
+            model_name="book",
+            name="tags",
+            field=models.ManyToManyField(blank=True, to="catalog.tag"),
         ),
         migrations.AddField(
-            model_name='book',
-            name='genre',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='catalog.genre'),
+            model_name="book",
+            name="genre",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="catalog.genre",
+            ),
         ),
     ]
