@@ -98,6 +98,19 @@
           Reply
         </button>
       </form>
+      {% else %}
+      <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="flex gap-3 mb-6 group">
+        <div class="w-9 h-9 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400 flex-shrink-0">
+          ?
+        </div>
+        <div class="flex-1">
+          <input type="text" placeholder="Login to post a reply..." disabled
+                 class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-100 dark:bg-gray-700/30 text-gray-400 dark:text-gray-500 text-sm cursor-pointer group-hover:border-blue-400 transition-all duration-200">
+        </div>
+        <button type="button" class="px-5 py-2.5 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 text-sm font-medium rounded-xl cursor-pointer group-hover:bg-blue-500 group-hover:text-white transition-all duration-200 self-start">
+          Reply
+        </button>
+      </a>
       {% endif %}
 
       <div id="comments-list" class="space-y-0">
