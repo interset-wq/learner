@@ -156,6 +156,32 @@ def new_topic(request):
 
 
 @login_required
+def edit_topic(request, topic_id):
+    t = get_object_or_404(Topic, pk=topic_id)
+    if t.owner != request.user:
+        raise Http404
+    if request.method != "POST":
+        form = TopicForm(instance=t)
+    else:
+        form = TopicForm(data=request.POST, instance=t)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("learning_logs:topic", args=[t.id]))
+    context = {"form": form, "topic": t}
+    return render(request, "learning_logs/edit_topic.html", context)
+
+
+@login_required
+@require_POST
+def delete_topic(request, topic_id):
+    t = get_object_or_404(Topic, pk=topic_id)
+    if t.owner != request.user:
+        raise Http404
+    t.delete()
+    return redirect(reverse("learning_logs:topics"))
+
+
+@login_required
 def new_entry(request, topic_id):
     topic = get_object_or_404(Topic, pk=topic_id)
     if topic.owner != request.user:
