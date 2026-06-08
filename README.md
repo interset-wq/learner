@@ -57,24 +57,42 @@ Authentication and profile management (Django built-in auth).
 
 ## Quick Start
 
+### Local Development
+
 ```bash
 # Install dependencies
-uv sync
-pnpm install
+make install
+# or manually: uv sync && pnpm install
 
-# Run migrations
-uv run python manage.py migrate
+# Setup (install + migrate + seed + build)
+make setup
 
-# Create admin user
-uv run python manage.py createsuperuser
+# Start development server
+make dev
+# or: uv run python manage.py runserver + pnpm dev
 
-# Generate fake data (optional)
-uv run python create_fake_data.py
-
-# Start development
-pnpm dev &          # Tailwind watch
-uv run python manage.py runserver  # Django server
+# Access at http://localhost:8000
+# Admin: admin/admin123
 ```
+
+### Docker
+
+```bash
+# Build and start
+make docker-build
+make docker-up
+
+# Seed data
+make docker-seed
+
+# Access at http://localhost:8000
+# Admin: admin/admin123
+
+# Stop
+make docker-down
+```
+
+Run `make help` to see all available commands.
 
 ## Project Structure
 
