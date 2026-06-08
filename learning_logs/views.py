@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView
@@ -129,6 +130,13 @@ def toggle_like(request, entry_id):
     return JsonResponse({"liked": liked, "count": entry.like_count})
 
 
+def _render_comment_html(comment, user, topic_owner):
+    return render_to_string(
+        "learning_logs/components/comment_item.html",
+        {"comment": comment, "user": user, "topic_owner": topic_owner},
+    )
+
+
 @login_required
 @require_POST
 def add_comment(request, entry_id):
@@ -141,9 +149,12 @@ def add_comment(request, entry_id):
         comment.entry = entry
         comment.user = request.user
         comment.save()
-    return redirect(
-        reverse("learning_logs:topic", args=[entry.topic.id]) + f"#entry-{entry.id}"
-    )
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            html = _render_comment_html(comment, request.user, entry.topic.owner)
+            return JsonResponse(
+                {"success": True, "html": html, "count": entry.comment_count}
+            )
+    return redirect(reverse("learning_logs:entry_detail", args=[entry.id]))
 
 
 @login_required
@@ -153,10 +164,13 @@ def delete_comment(request, comment_id):
     entry = comment.entry
     if comment.user != request.user and entry.topic.owner != request.user:
         raise Http404
+    comment_id = comment.id
     comment.delete()
-    return redirect(
-        reverse("learning_logs:topic", args=[entry.topic.id]) + f"#entry-{entry.id}"
-    )
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse(
+            {"success": True, "comment_id": comment_id, "count": entry.comment_count}
+        )
+    return redirect(reverse("learning_logs:entry_detail", args=[entry.id]))
 
 
 @login_required
@@ -168,7 +182,17 @@ def reply_comment(request, comment_id):
         raise Http404
     text = request.POST.get("text", "").strip()
     if text:
-        Comment.objects.create(entry=entry, user=request.user, parent=parent, text=text)
-    return redirect(
-        reverse("learning_logs:topic", args=[entry.topic.id]) + f"#entry-{entry.id}"
-    )
+        comment = Comment.objects.create(
+            entry=entry, user=request.user, parent=parent, text=text
+        )
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            html = _render_comment_html(comment, request.user, entry.topic.owner)
+            return JsonResponse(
+                {
+                    "success": True,
+                    "html": html,
+                    "parent_id": parent.id,
+                    "count": entry.comment_count,
+                }
+            )
+    return redirect(reverse("learning_logs:entry_detail", args=[entry.id]))
