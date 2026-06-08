@@ -12,6 +12,8 @@ from config.mixins import LoadMoreMixin
 from learning_logs.forms import CommentForm, EntryForm, TopicForm
 from learning_logs.models import Comment, Entry, Topic
 
+COMMENTS_PER_PAGE = 10
+
 
 def index(request):
     return render(request, "learning_logs/index.html")
@@ -60,27 +62,69 @@ def entry_detail(request, entry_id):
     if not is_owner and (not topic.is_public or not entry.is_public):
         raise Http404
 
-    comments_qs = Comment.objects.select_related("user").prefetch_related(
-        Prefetch(
-            "replies",
-            queryset=Comment.objects.select_related("user"),
+    root_comments = (
+        entry.comments.filter(parent__isnull=True)
+        .select_related("user")
+        .prefetch_related(
+            Prefetch(
+                "replies",
+                queryset=Comment.objects.select_related("user"),
+            )
         )
     )
-    root_comments = entry.comments.filter(parent__isnull=True).prefetch_related(
-        Prefetch(
-            "replies",
-            queryset=Comment.objects.select_related("user"),
-        )
-    )
+
+    total_comments = entry.comments.count()
+    root_count = root_comments.count()
+    shown_comments = root_comments[:COMMENTS_PER_PAGE]
+    has_more = root_count > COMMENTS_PER_PAGE
 
     context = {
         "entry": entry,
         "topic": topic,
         "is_owner": is_owner,
         "topic_owner": topic.owner,
-        "root_comments": root_comments,
+        "root_comments": shown_comments,
+        "has_more_comments": has_more,
+        "total_comments": total_comments,
+        "shown_count": min(root_count, COMMENTS_PER_PAGE),
     }
     return render(request, "learning_logs/entry_detail.html", context)
+
+
+@login_required
+def load_more_comments(request, entry_id):
+    entry = get_object_or_404(Entry, pk=entry_id)
+    offset = int(request.GET.get("offset", 0))
+    limit = COMMENTS_PER_PAGE
+
+    root_comments = (
+        entry.comments.filter(parent__isnull=True)
+        .select_related("user")
+        .prefetch_related(
+            Prefetch(
+                "replies",
+                queryset=Comment.objects.select_related("user"),
+            )
+        )[offset : offset + limit]
+    )
+
+    html = render_to_string(
+        "learning_logs/components/comment_thread.html",
+        {
+            "comments": root_comments,
+            "user": request.user,
+            "topic_owner": entry.topic.owner,
+        },
+    )
+
+    total_root = entry.comments.filter(parent__isnull=True).count()
+    return JsonResponse(
+        {
+            "html": html,
+            "has_more": (offset + limit) < total_root,
+            "next_offset": offset + limit,
+        }
+    )
 
 
 @login_required
