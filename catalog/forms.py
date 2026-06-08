@@ -4,6 +4,17 @@ import datetime  # for checking renewal date range.
 
 from django import forms
 
+from .models import Book
+
+
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title', 'author', 'summary', 'genre', 'language', 'tags']
+        widgets = {
+            'tags': forms.CheckboxSelectMultiple(attrs={'class': 'checkbox-group'}),
+        }
+
 
 class RenewBookForm(forms.Form):
     """Form for a librarian to renew books."""
@@ -29,5 +40,5 @@ class BookSearchForm(forms.Form):
     q = forms.CharField(
         required=False,
         label='',
-        widget=forms.TextInput(attrs={'placeholder': 'Search by title, author, or ISBN...'}),
+        widget=forms.TextInput(attrs={'placeholder': 'Search by title or author...'}),
     )
