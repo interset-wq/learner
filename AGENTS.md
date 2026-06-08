@@ -4,6 +4,10 @@
 
 Django 6.0.5 learning log application with Tailwind CSS 4.x styling.
 
+## Versioning
+
+Each iteration must update `pyproject.toml` version and `site_config.toml` version.
+
 ## Package Managers
 
 - **Python**: uv (Python 3.13)
@@ -26,13 +30,16 @@ pnpm build
 
 # Generate fake data
 uv run python create_fake_data.py
+
+# Run tests
+uv run python manage.py test
 ```
 
 ## App Structure
 
 | App | URL Namespace | Purpose |
 |-----|---------------|---------|
-| `core` | `core/` | Polls/voting (under development) |
+| `core` | `core/` | Polls/voting |
 | `catalog` | `catalog` | Books, authors, genres, instances |
 | `learning_logs` | `learning_logs` | Personal learning topics/entries |
 | `accounts` | `accounts` | Authentication & Profile |
@@ -61,6 +68,7 @@ The `accounts` app follows Django's built-in auth conventions, not the project's
 ## Configuration
 
 - Django settings: `config/settings.py`
+- Environment variables: `.env` (see `.env.example`)
 - Site config: `site_config.toml` (loaded via context processor)
 - Database: SQLite (`db.sqlite3`)
 
@@ -99,77 +107,9 @@ Run `pnpm dev` during development to watch for changes.
 
 Footer must provide links to other apps' root routes for cross-app navigation.
 
-## Catalog App Refactoring
+## Pagination
 
-Current task: Refactor catalog app according to the ER diagram below.
+Configurable via `site_config.toml` under `[pagination]`:
 
-### ER Diagram
-
-```mermaid
-erDiagram
-    Genre {
-        int id PK
-        varchar name
-    }
-
-    Language {
-        int id PK
-        varchar name
-    }
-
-    Author {
-        int id PK
-        varchar name
-        date date_of_birth
-        date date_of_death
-    }
-
-    Tag {
-        int id PK
-        varchar name
-    }
-
-    Book {
-        int id PK
-        varchar title
-        int author_id FK
-        text summary
-        int genre_id FK
-        int language_id FK
-    }
-
-    BookInstance {
-        int id PK
-        int book_id FK
-        varchar imprint
-        date due_back
-        int borrower_id FK
-        varchar status
-    }
-
-    Record {
-        int id PK
-        int book_instance_id FK
-        int borrower_id FK
-        date borrow_date
-        date return_date
-    }
-
-    Book }o--|| Author : "written by"
-    Book }o--|| Language : "in"
-    Book }o--|| Genre : "belongs to"
-    Book }o--o{ Tag : "has"
-    BookInstance }o--|| Book : "is a copy of"
-    BookInstance }o--o| Record : "has"
-    Record }o--|| User : "borrowed by"
-```
-
-### Schema Changes
-
-- **Author**: `first_name` + `last_name` → `name` (done)
-- **Author**: removed `first_name`, `last_name` fields (done)
-- **Genre-Book**: M:N → 1:N (Book has `genre_id` FK) (done)
-- **Tag**: New table, M:N with Book (done)
-- **BookInstance**: Use int `id` as primary key (not UUID) (done)
-- **Book**: removed `isbn` field (done)
-- **Record**: New table for borrowing records (done)
+- `style = "traditional"` — page numbers with prev/next
+- `style = "load_more"` — AJAX-based infinite scroll button
