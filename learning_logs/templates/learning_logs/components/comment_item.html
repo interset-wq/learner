@@ -1,10 +1,6 @@
 {% load comment_tags %}
-<div class="comment-item relative {% if depth > 0 %}ml-6 sm:ml-10{% endif %}" id="comment-{{ comment.id }}">
-  <div class="flex items-start gap-3 py-3 group relative">
-    {% if depth > 0 %}
-    <div class="absolute -left-3 sm:-left-5 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
-    {% endif %}
-
+<div class="comment-item" id="comment-{{ comment.id }}">
+  <div class="flex items-start gap-3 py-3 group">
     <div class="w-8 h-8 rounded-full bg-gradient-to-br {{ comment.avatar_gradient }} flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 ring-2 ring-white dark:ring-gray-800">
       {{ comment.user.username|first|upper }}
     </div>
@@ -24,7 +20,7 @@
       <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">{{ comment.text|highlight_mentions }}</p>
       <div class="mt-2 flex items-center gap-3">
         <button class="reply-toggle text-xs text-gray-400 hover:text-blue-500 transition-colors duration-200 flex items-center gap-1"
-                data-comment-id="{{ comment.id }}">
+                data-comment-id="{{ comment.id }}" data-username="{{ comment.user.username }}">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
           </svg>
@@ -42,5 +38,5 @@
       </div>
     </div>
   </div>
-  <div id="replies-{{ comment.id }}" class="replies-container"></div>
+  <div id="replies-{{ comment.id }}" class="ml-6 sm:ml-10 border-l-2 border-gray-100 dark:border-gray-700 pl-4"></div>
 </div>

@@ -100,9 +100,7 @@
       {% endif %}
 
       <div id="comments-list" class="space-y-0">
-        {% for comment in entry.root_comments %}
-          {% include "learning_logs/components/comment_thread.html" with comments=entry.root_comments topic_owner=topic.owner %}
-        {% endfor %}
+        {% include "learning_logs/components/comment_thread.html" with comments=root_comments topic_owner=topic.owner %}
       </div>
     </div>
     {% endif %}

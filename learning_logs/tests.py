@@ -403,10 +403,10 @@ class EntryModelLikeCommentTest(TestCase):
         entry = create_entry(topic, "content", title="Test", is_public=True)
         c1 = Comment.objects.create(entry=entry, user=user, text="L1")
         c2 = Comment.objects.create(entry=entry, user=user, text="L2", parent=c1)
-        c3 = Comment.objects.create(entry=entry, user=user, text="L3", parent=c2)
-        self.assertEqual(c1.depth, 0)
-        self.assertEqual(c2.depth, 1)
-        self.assertEqual(c3.depth, 2)
+        self.assertFalse(c1.is_reply)
+        self.assertTrue(c2.is_reply)
+        with self.assertRaises(ValueError):
+            Comment.objects.create(entry=entry, user=user, text="L3", parent=c2)
 
 
 class ReplyCommentTest(TestCase):
@@ -467,7 +467,7 @@ class ReplyCommentTest(TestCase):
         response = self.client.post(url, {"text": "Reply"})
         self.assertEqual(response.status_code, 302)
 
-    def test_nested_reply(self):
+    def test_cannot_reply_to_reply(self):
         user = create_user()
         self.client.force_login(user)
         topic = create_topic(user, is_public=True)
@@ -476,6 +476,4 @@ class ReplyCommentTest(TestCase):
         c2 = Comment.objects.create(entry=entry, user=user, text="L2", parent=c1)
         url = reverse("learning_logs:reply_comment", args=[c2.id])
         response = self.client.post(url, {"text": "L3 reply"})
-        self.assertEqual(response.status_code, 302)
-        c3 = Comment.objects.get(parent=c2)
-        self.assertEqual(c3.depth, 2)
+        self.assertEqual(response.status_code, 404)
