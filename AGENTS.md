@@ -19,6 +19,19 @@ Examples:
 - Updating README: PATCH
 - Refactoring comment depth limit: MINOR (behavior change)
 
+**Version must match git tag.** After bumping `pyproject.toml`, create a matching tag:
+```bash
+git tag v<version>  # e.g. git tag v2.1.2
+git push origin v<version>
+```
+
+## Git Workflow
+
+- Commit code regularly
+- Each task in the task list should have at least one commit
+- Do not commit directly to `main`
+- **Always ask for approval before `git push`** — never push without user confirmation
+
 ## Package Managers
 
 - **Python**: uv (Python 3.13)
@@ -113,12 +126,6 @@ Run `pnpm dev` during development to watch for changes.
 - Minimize raw CSS - prefer Tailwind utilities
 - Keep global styles consistent - reuse rulesets in `input.css`
 - Implement dark mode (can copy/paste sun/moon icons from Django admin source)
-
-## Git Workflow
-
-- Commit code regularly
-- Each task in the task list should have at least one commit
-- Do not commit directly to `main`
 
 ## Footer
 
