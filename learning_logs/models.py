@@ -80,15 +80,25 @@ class Entry(models.Model):
 
     @property
     def rendered_text(self):
-        return mark_safe(
-            markdown.markdown(
-                self.text,
-                extensions=["fenced_code", "codehilite", "tables", "toc"],
-                extension_configs={
-                    "codehilite": {"css_class": "highlight", "guess_lang": False}
-                },
-            )
+        md = markdown.Markdown(
+            extensions=["fenced_code", "codehilite", "tables", "toc"],
+            extension_configs={
+                "codehilite": {"css_class": "highlight", "guess_lang": False}
+            },
         )
+        html = md.convert(self.text)
+        self._toc_html = md.toc
+        return mark_safe(html)
+
+    @property
+    def toc_html(self):
+        if not hasattr(self, "_toc_html"):
+            md = markdown.Markdown(
+                extensions=["toc"],
+            )
+            md.convert(self.text)
+            self._toc_html = md.toc
+        return mark_safe(self._toc_html)
 
 
 class Comment(models.Model):
