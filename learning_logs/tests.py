@@ -39,6 +39,24 @@ class EntryModelTest(TestCase):
         self.assertTrue(result.endswith('...'))
         self.assertLessEqual(len(result), 55)
 
+    def test_rendered_text_markdown(self):
+        user = create_user()
+        topic = create_topic(user)
+        entry = Entry(text='# Heading\n\n**bold** and *italic*', topic=topic)
+        html = entry.rendered_text
+        self.assertIn('<h1', html)
+        self.assertIn('Heading', html)
+        self.assertIn('<strong>bold</strong>', html)
+        self.assertIn('<em>italic</em>', html)
+
+    def test_rendered_text_code_block(self):
+        user = create_user()
+        topic = create_topic(user)
+        entry = Entry(text='```python\nprint("hello")\n```', topic=topic)
+        html = entry.rendered_text
+        self.assertIn('highlight', html)
+        self.assertIn('print', html)
+
 
 class IndexViewTest(TestCase):
     def test_index_status_code(self):

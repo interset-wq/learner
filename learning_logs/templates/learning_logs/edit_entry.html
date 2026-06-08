@@ -10,10 +10,31 @@
   <p class="mb-4">Edit entry:</p>
   <form action="{% url 'learning_logs:edit_entry' entry.id %}" method="post" class="django-form">
     {% csrf_token %}
-    {{ form.as_div }}
+    <div class="mb-4">
+      <textarea name="text" id="id_text">{{ form.text.value }}</textarea>
+    </div>
+    {{ form.text.errors }}
     <div>
       <button class="btn-primary">Save changes</button>
     </div>
   </form>
 </div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<script>
+  const easyMDE = new EasyMDE({
+    element: document.getElementById('id_text'),
+    spellChecker: false,
+    placeholder: 'Write your entry in Markdown...',
+    minHeight: '300px',
+    toolbar: [
+      'bold', 'italic', 'heading', '|',
+      'quote', 'unordered-list', 'ordered-list', '|',
+      'code', 'table', 'link', 'image', '|',
+      'preview', 'side-by-side', 'fullscreen', '|',
+      'guide'
+    ]
+  });
+</script>
 {% endblock %}
