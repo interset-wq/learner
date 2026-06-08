@@ -1,0 +1,152 @@
+{% extends 'learning_logs/base.html' %}
+
+{% block title %}Delete Topic: {{ topic.text }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Delete Topic</h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">
+      You are about to delete <span class="font-semibold text-gray-900 dark:text-white">"{{ topic.text }}"</span>
+      {% if entry_count > 0 %}
+        which contains <span class="font-semibold text-red-600 dark:text-red-400">{{ entry_count }} entr{{ entry_count|pluralize:"y,ies" }}</span>.
+      {% else %}
+        which has no entries.
+      {% endif %}
+    </p>
+  </div>
+
+  {% if entry_count > 0 and other_topics %}
+  <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Migrate All Entries</h2>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      Move all entries to another topic before deleting.
+    </p>
+    <form method="post" action="{% url 'learning_logs:delete_topic' topic.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="migrate_all">
+      <div class="flex items-end gap-4">
+        <div class="flex-1">
+          <label for="target_topic_all" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target topic</label>
+          <select name="target_topic" id="target_topic_all" required
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="">Select a topic...</option>
+            {% for t in other_topics %}
+              <option value="{{ t.id }}">{{ t.text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          Migrate All & Delete
+        </button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if entry_count > 0 and other_topics %}
+  <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Migrate Selected Entries</h2>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      Select specific entries to migrate to another topic. Unselected entries will remain in this topic.
+    </p>
+    <form method="post" action="{% url 'learning_logs:delete_topic' topic.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="migrate_selected">
+      <div class="mb-4">
+        <label for="target_topic_selected" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target topic</label>
+        <select name="target_topic" id="target_topic_selected" required
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <option value="">Select a topic...</option>
+          {% for t in other_topics %}
+            <option value="{{ t.id }}">{{ t.text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="border border-gray-200 dark:border-gray-700 rounded-lg divide-y divide-gray-200 dark:divide-gray-700 mb-4 max-h-64 overflow-y-auto">
+        {% for entry in entries %}
+        <label class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors">
+          <input type="checkbox" name="entry_ids" value="{{ entry.id }}"
+                 class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-blue-500">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ entry.title }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ entry.date_added|date:'M d, Y' }}</p>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="toggleAll(this)"
+                class="text-sm text-blue-500 hover:text-blue-600 font-medium">
+          Select All
+        </button>
+        <button type="submit"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          Migrate Selected
+        </button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 p-6">
+    <h2 class="text-lg font-semibold text-red-700 dark:text-red-300 mb-2">Delete Without Migration</h2>
+    <p class="text-sm text-red-600 dark:text-red-400 mb-4">
+      {% if entry_count > 0 %}
+        <span class="font-semibold">Warning:</span> This will permanently delete all {{ entry_count }} entr{{ entry_count|pluralize:"y,ies" }} and their comments. This action cannot be undone.
+      {% else %}
+        This will permanently delete the topic. This action cannot be undone.
+      {% endif %}
+    </p>
+    <form method="post" action="{% url 'learning_logs:delete_topic' topic.id %}" id="delete-all-form" data-topic="{{ topic.text|escapejs }}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="delete_all">
+      <button type="button" onclick="confirmDelete()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        Delete Topic
+      </button>
+    </form>
+  </div>
+
+  <div class="mt-6 text-center">
+    <a href="{% url 'learning_logs:topic' topic.id %}"
+       class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+      Cancel and go back
+    </a>
+  </div>
+</div>
+
+<script>
+function toggleAll(btn) {
+  const checkboxes = btn.closest('form').querySelectorAll('input[name="entry_ids"]');
+  const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+  checkboxes.forEach(cb => cb.checked = !allChecked);
+  btn.textContent = allChecked ? 'Select All' : 'Deselect All';
+}
+
+function confirmDelete() {
+  const form = document.getElementById('delete-all-form');
+  const entryCount = {{ entry_count }};
+  const topicText = form.dataset.topic;
+  let msg;
+  if (entryCount > 0) {
+    msg = 'Are you absolutely sure?\n\nThis will permanently delete "' + topicText + '" and all ' + entryCount + ' entries with their comments.\n\nThis cannot be undone!';
+  } else {
+    msg = 'Are you sure you want to delete "' + topicText + '"?';
+  }
+  if (confirm(msg)) {
+    form.submit();
+  }
+}
+</script>
+{% endblock %}

@@ -1,5 +1,5 @@
 [site]
-name = "Django Demos"
+name = "Learner"
 
 [pagination]
 # Options: "traditional" | "load_more"
