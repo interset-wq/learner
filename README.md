@@ -59,21 +59,10 @@ Authentication and profile management (Django built-in auth).
 
 ### Prerequisites
 
-- [Python 3.13+](https://www.python.org/)
-- [Node.js 22+](https://nodejs.org/)
-- [uv](https://docs.astral.sh/uv/) (Python package manager)
-- [pnpm](https://pnpm.io/) (Node.js package manager)
+- **Python 3.13+** — [uv](https://docs.astral.sh/uv/) (recommended) or pip
+- **Node.js 22+** — [pnpm](https://pnpm.io/) (recommended) or npm/yarn
 
-```bash
-# Install uv
-curl -LsSf https://astral.sh/uv/install.sh | sh   # macOS / Linux
-# or: powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
-
-# Install pnpm
-npm install -g pnpm
-```
-
-### Linux (Makefile)
+### Linux / macOS
 
 ```bash
 make setup          # Install + migrate + seed + build
@@ -82,41 +71,31 @@ make dev            # Start Django + Tailwind watch
 make help           # Show all commands
 ```
 
-### macOS / Windows (Manual)
+### Windows (Manual)
 
 ```bash
-# 1. Install dependencies
-uv sync
-pnpm install
+uv sync             # or: pip install -r requirements.txt
+pnpm install        # or: npm install
 
-# 2. Run migrations
 uv run python manage.py migrate
-
-# 3. Generate fake data (creates staff accounts + sample data)
 uv run python create_fake_data.py
+pnpm build          # or: npm run build
 
-# 4. Build Tailwind CSS
-pnpm build
+# Run in two terminals:
+pnpm dev            # Tailwind watch
+uv run python manage.py runserver  # Django server
 
-# 5. Start development (run in two terminals)
-pnpm dev                                    # Terminal 1: Tailwind watch
-uv run python manage.py runserver           # Terminal 2: Django server
-
-# Access: http://localhost:8000
-# Admin: admin / admin123
+# Access: http://localhost:8000  |  Admin: admin/admin123
 ```
 
 ### Docker
 
 ```bash
-docker compose build       # Build image
-docker compose up -d       # Start container
-docker compose exec web uv run python create_fake_data.py  # Seed data
-
-# Access: http://localhost:8000
-# Admin: admin / admin123
-
-docker compose down        # Stop container
+docker compose build
+docker compose up -d
+docker compose exec web uv run python create_fake_data.py
+# Access: http://localhost:8000  |  Admin: admin/admin123
+docker compose down
 ```
 
 ## Project Structure
