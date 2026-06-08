@@ -1,6 +1,3 @@
-{% load comment_tags %}
-
-{% for comment in comments %}
 <div class="comment-item relative {% if depth > 0 %}ml-6 sm:ml-10{% endif %}" id="comment-{{ comment.id }}">
   <div class="flex items-start gap-3 py-3 group relative">
     {% if depth > 0 %}
@@ -13,7 +10,7 @@
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ comment.user.username }}</span>
-        <span class="text-xs text-gray-400">{{ comment.created_at|timesince }}</span>
+        <span class="text-xs text-gray-400">now</span>
         {% if comment.user == user or topic_owner == user %}
           <button class="delete-comment-btn text-xs text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 ml-auto"
                   data-comment-id="{{ comment.id }}">
@@ -25,7 +22,6 @@
       </div>
       <p class="text-sm text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">{{ comment.text }}</p>
       <div class="mt-2 flex items-center gap-3">
-        {% if user.is_authenticated and depth < 3 %}
         <button class="reply-toggle text-xs text-gray-400 hover:text-blue-500 transition-colors duration-200 flex items-center gap-1"
                 data-comment-id="{{ comment.id }}">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -33,16 +29,6 @@
           </svg>
           Reply
         </button>
-        {% endif %}
-        {% if comment.replies.count > 0 %}
-        <button class="toggle-replies text-xs text-gray-400 hover:text-blue-500 transition-colors duration-200 flex items-center gap-1"
-                data-comment-id="{{ comment.id }}">
-          <svg class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-          {{ comment.replies.count }} {% if comment.replies.count == 1 %}reply{% else %}replies{% endif %}
-        </button>
-        {% endif %}
       </div>
 
       <div id="reply-form-{{ comment.id }}" class="hidden mt-3">
@@ -55,11 +41,5 @@
       </div>
     </div>
   </div>
-
-  {% if comment.replies.count > 0 %}
-  <div id="replies-{{ comment.id }}" class="replies-container">
-    {% render_comments comment.replies.all topic_owner %}
-  </div>
-  {% endif %}
+  <div id="replies-{{ comment.id }}" class="replies-container"></div>
 </div>
-{% endfor %}
