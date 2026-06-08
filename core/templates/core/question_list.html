@@ -6,7 +6,7 @@
 <div class="max-w-3xl mx-auto">
   <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Polls</h1>
 
-  <ul class="space-y-4">
+  <ul id="item-list" class="space-y-4">
     {% for question in latest_question_list %}
       <li class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-all duration-200">
         <a href="{% url 'core:detail' question.id %}"

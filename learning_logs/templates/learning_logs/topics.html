@@ -12,7 +12,7 @@
       </a>
     </div>
 
-    <ul class="grid grid-cols-1 md:grid-cols-2 gap-6 list-none p-0 m-0">
+    <ul id="item-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 list-none p-0 m-0">
       {% for topic in topics %}
         <li class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0">
           <p class="text-sm text-gray-400 dark:text-gray-500 mb-3 font-medium">{{ topic.date_added|date:'M d, Y H:i' }}</p>

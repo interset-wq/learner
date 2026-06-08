@@ -7,6 +7,7 @@ from django.views.generic import ListView
 
 from learning_logs.form import TopicForm, EntryForm
 from learning_logs.models import Topic, Entry
+from config.mixins import LoadMoreMixin
 
 
 # Create your views here.
@@ -19,11 +20,12 @@ def index(request):
 #     topics = Topic.objects.filter(owner=request.user).order_by('-date_added')
 #     context = {'topics': topics}
 #     return render(request, 'learning_logs/topics.html', context)
-class TopicListView(LoginRequiredMixin, ListView):
+class TopicListView(LoadMoreMixin, LoginRequiredMixin, ListView):
     model = Topic
     template_name = "learning_logs/topics.html"
     context_object_name = "topics"
     paginate_by = 10
+    item_template = 'learning_logs/partials/topic_items.html'
 
     def get_queryset(self):
         return Topic.objects.filter(owner=self.request.user).order_by("-date_added")

@@ -11,6 +11,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from .models import Book, Author, BookInstance, Genre, Language, Tag, Record
 from catalog.forms import RenewBookForm, BookSearchForm, BookForm
+from config.mixins import LoadMoreMixin
 
 
 def user_profile(request, username):
@@ -72,9 +73,10 @@ def staff_dashboard(request):
     return render(request, 'catalog/staff_dashboard.html', context)
 
 
-class BookListView(generic.ListView):
+class BookListView(LoadMoreMixin, generic.ListView):
     model = Book
     paginate_by = 10
+    item_template = 'catalog/partials/book_items.html'
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -102,27 +104,30 @@ class BookDetailView(generic.DetailView):
         return context
 
 
-class AuthorListView(generic.ListView):
+class AuthorListView(LoadMoreMixin, generic.ListView):
     model = Author
     paginate_by = 10
+    item_template = 'catalog/partials/author_items.html'
 
 
 class AuthorDetailView(generic.DetailView):
     model = Author
 
 
-class GenreListView(generic.ListView):
+class GenreListView(LoadMoreMixin, generic.ListView):
     model = Genre
     paginate_by = 10
+    item_template = 'catalog/partials/genre_items.html'
 
 
 class GenreDetailView(generic.DetailView):
     model = Genre
 
 
-class LanguageListView(generic.ListView):
+class LanguageListView(LoadMoreMixin, generic.ListView):
     model = Language
     paginate_by = 10
+    item_template = 'catalog/partials/language_items.html'
 
 
 class LanguageDetailView(generic.DetailView):
@@ -353,9 +358,10 @@ class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
     permission_required = 'catalog.delete_bookinstance'
 
 
-class TagListView(generic.ListView):
+class TagListView(LoadMoreMixin, generic.ListView):
     model = Tag
     paginate_by = 10
+    item_template = 'catalog/partials/tag_items.html'
 
 
 class TagDetailView(generic.DetailView):

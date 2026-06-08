@@ -40,7 +40,11 @@
   {% block content %}{% endblock %}
 
   {% block pagination %}
-    {% include "components/pagination.html" %}
+    {% if TOML.pagination.style == "load_more" %}
+      {% include "components/load_more.html" %}
+    {% else %}
+      {% include "components/pagination.html" %}
+    {% endif %}
   {% endblock %}
 </main>
 
