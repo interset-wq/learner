@@ -1,13 +1,21 @@
-{% if is_paginated and page_obj.has_next %}
-  <div id="load-more-wrapper" class="mt-8 text-center">
-    <button id="load-more-btn"
-      data-next-url="?page={{ page_obj.next_page_number }}"
-      data-list-selector="#item-list"
-      onclick="loadMore(this)"
-      class="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors">
-      Load More
-    </button>
-    <p id="load-more-status" class="text-sm text-gray-500 dark:text-gray-400 mt-2 hidden">Loading...</p>
+{% if is_paginated %}
+  <div id="load-more-wrapper" class="mt-8 flex flex-col items-center gap-3">
+    {% if page_obj.has_next %}
+      <div class="flex items-center gap-3">
+        <button id="load-more-btn"
+          data-next-url="?page={{ page_obj.next_page_number }}"
+          data-list-selector="#item-list"
+          onclick="loadMore(this)"
+          class="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors">
+          Load More
+        </button>
+        <button onclick="window.scrollTo({top:0,behavior:'smooth'})"
+          class="px-6 py-3 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+          Top
+        </button>
+      </div>
+    {% endif %}
+    <p id="load-more-status" class="text-sm text-gray-500 dark:text-gray-400 hidden">Loading...</p>
   </div>
 
   <script>
