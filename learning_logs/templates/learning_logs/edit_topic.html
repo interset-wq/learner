@@ -1,0 +1,22 @@
+{% extends 'learning_logs/base.html' %}
+
+{% block content %}
+  <div class="max-w-2xl mx-auto">
+    <h1 class="page-title">Edit topic</h1>
+    <form method="post" class="django-form" action="{% url 'learning_logs:edit_topic' topic.id %}">
+      {% csrf_token %}
+      <div class="mb-4">
+        <input type="text" name="text" id="id_text" value="{{ form.text.value }}" class="input-field" required>
+      </div>
+      <div class="mb-4 flex items-center">
+        {{ form.is_public }}
+        <label for="id_is_public" class="text-gray-700 dark:text-gray-300">Make this topic public</label>
+      </div>
+      {{ form.is_public.errors }}
+      <div class="flex gap-3">
+        <button class="btn-primary">Save changes</button>
+        <a href="{% url 'learning_logs:topic' topic.id %}" class="btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
