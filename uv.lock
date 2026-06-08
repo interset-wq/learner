@@ -74,8 +74,8 @@ wheels = [
 ]
 
 [[package]]
-name = "learning-log"
-version = "2.1.2"
+name = "learner"
+version = "2.2.0"
 source = { virtual = "." }
 dependencies = [
     { name = "django" },
