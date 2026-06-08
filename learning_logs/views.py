@@ -172,13 +172,51 @@ def edit_topic(request, topic_id):
 
 
 @login_required
+def delete_topic_confirm(request, topic_id):
+    t = get_object_or_404(Topic, pk=topic_id)
+    if t.owner != request.user:
+        raise Http404
+    entries = t.entry_set.all()
+    other_topics = Topic.objects.filter(owner=request.user).exclude(pk=topic_id)
+    context = {
+        "topic": t,
+        "entries": entries,
+        "entry_count": entries.count(),
+        "other_topics": other_topics,
+    }
+    return render(request, "learning_logs/topic_delete_confirm.html", context)
+
+
+@login_required
 @require_POST
 def delete_topic(request, topic_id):
     t = get_object_or_404(Topic, pk=topic_id)
     if t.owner != request.user:
         raise Http404
-    t.delete()
-    return redirect(reverse("learning_logs:topics"))
+    action = request.POST.get("action")
+    target_topic_id = request.POST.get("target_topic")
+    selected_entry_ids = request.POST.getlist("entry_ids")
+
+    if action == "migrate_all" and target_topic_id:
+        target = get_object_or_404(Topic, pk=target_topic_id, owner=request.user)
+        t.entry_set.all().update(topic=target)
+        t.delete()
+        return redirect(reverse("learning_logs:topic", args=[target.id]))
+
+    if action == "migrate_selected" and target_topic_id and selected_entry_ids:
+        target = get_object_or_404(Topic, pk=target_topic_id, owner=request.user)
+        t.entry_set.filter(id__in=selected_entry_ids).update(topic=target)
+        remaining = t.entry_set.count()
+        if remaining == 0:
+            t.delete()
+            return redirect(reverse("learning_logs:topic", args=[target.id]))
+        return redirect(reverse("learning_logs:topic", args=[t.id]))
+
+    if action == "delete_all":
+        t.delete()
+        return redirect(reverse("learning_logs:topics"))
+
+    return redirect(reverse("learning_logs:delete_topic_confirm", args=[t.id]))
 
 
 @login_required
@@ -214,6 +252,35 @@ def edit_entry(request, entry_id):
             return redirect(reverse("learning_logs:topic", args=[topic.id]))
     context = {"form": form, "topic": topic, "entry": entry}
     return render(request, "learning_logs/edit_entry.html", context)
+
+
+@login_required
+def delete_entry_confirm(request, entry_id):
+    entry = get_object_or_404(
+        Entry.objects.select_related("topic", "topic__owner"), pk=entry_id
+    )
+    if entry.topic.owner != request.user:
+        raise Http404
+    comment_count = entry.comments.count()
+    context = {
+        "entry": entry,
+        "topic": entry.topic,
+        "comment_count": comment_count,
+    }
+    return render(request, "learning_logs/entry_delete_confirm.html", context)
+
+
+@login_required
+@require_POST
+def delete_entry(request, entry_id):
+    entry = get_object_or_404(
+        Entry.objects.select_related("topic"), pk=entry_id
+    )
+    if entry.topic.owner != request.user:
+        raise Http404
+    topic_id = entry.topic.id
+    entry.delete()
+    return redirect(reverse("learning_logs:topic", args=[topic_id]))
 
 
 @login_required

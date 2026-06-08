@@ -13,8 +13,19 @@ urlpatterns = [
     path("new_topic/", views.new_topic, name="new_topic"),
     path("edit_topic/<int:topic_id>/", views.edit_topic, name="edit_topic"),
     path("delete_topic/<int:topic_id>/", views.delete_topic, name="delete_topic"),
+    path(
+        "delete_topic/<int:topic_id>/confirm/",
+        views.delete_topic_confirm,
+        name="delete_topic_confirm",
+    ),
     path("new_entry/<int:topic_id>/", views.new_entry, name="new_entry"),
     path("edit_entry/<int:entry_id>/", views.edit_entry, name="edit_entry"),
+    path(
+        "delete_entry/<int:entry_id>/confirm/",
+        views.delete_entry_confirm,
+        name="delete_entry_confirm",
+    ),
+    path("delete_entry/<int:entry_id>/", views.delete_entry, name="delete_entry"),
     path("entry/<int:entry_id>/like/", views.toggle_like, name="toggle_like"),
     path("entry/<int:entry_id>/comment/", views.add_comment, name="add_comment"),
     path(

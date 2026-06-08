@@ -474,3 +474,99 @@ class ReplyCommentTest(TestCase):
         url = reverse("learning_logs:reply_comment", args=[c2.id])
         response = self.client.post(url, {"text": "L3 reply"})
         self.assertEqual(response.status_code, 404)
+
+
+class DeleteEntryViewTest(TestCase):
+    def test_requires_login(self):
+        user = create_user()
+        topic = create_topic(user)
+        entry = create_entry(topic)
+        response = self.client.get(
+            reverse("learning_logs:delete_entry_confirm", args=[entry.id])
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_owner_can_view_confirm(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user)
+        entry = create_entry(topic, "content", title="My Entry")
+        response = self.client.get(
+            reverse("learning_logs:delete_entry_confirm", args=[entry.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Delete Entry")
+        self.assertContains(response, "My Entry")
+
+    def test_non_owner_cannot_view_confirm(self):
+        owner = create_user("owner")
+        other = create_user("other")
+        self.client.force_login(other)
+        topic = create_topic(owner)
+        entry = create_entry(topic)
+        response = self.client.get(
+            reverse("learning_logs:delete_entry_confirm", args=[entry.id])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_owner_can_delete_entry(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user)
+        entry = create_entry(topic, "content", title="To Delete")
+        response = self.client.post(
+            reverse("learning_logs:delete_entry", args=[entry.id])
+        )
+        self.assertRedirects(response, reverse("learning_logs:topic", args=[topic.id]))
+        self.assertFalse(Entry.objects.filter(pk=entry.id).exists())
+
+    def test_non_owner_cannot_delete_entry(self):
+        owner = create_user("owner")
+        other = create_user("other")
+        self.client.force_login(other)
+        topic = create_topic(owner)
+        entry = create_entry(topic)
+        response = self.client.post(
+            reverse("learning_logs:delete_entry", args=[entry.id])
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Entry.objects.filter(pk=entry.id).exists())
+
+    def test_delete_requires_post(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user)
+        entry = create_entry(topic)
+        response = self.client.get(
+            reverse("learning_logs:delete_entry", args=[entry.id])
+        )
+        self.assertEqual(response.status_code, 405)
+        self.assertTrue(Entry.objects.filter(pk=entry.id).exists())
+
+    def test_delete_entry_with_comments(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user)
+        entry = create_entry(topic)
+        Comment.objects.create(entry=entry, user=user, text="Comment 1")
+        Comment.objects.create(entry=entry, user=user, text="Comment 2")
+        self.assertEqual(Comment.objects.filter(entry=entry).count(), 2)
+        response = self.client.post(
+            reverse("learning_logs:delete_entry", args=[entry.id])
+        )
+        self.assertRedirects(response, reverse("learning_logs:topic", args=[topic.id]))
+        self.assertFalse(Entry.objects.filter(pk=entry.id).exists())
+        self.assertEqual(Comment.objects.filter(entry=entry).count(), 0)
+
+    def test_confirm_shows_comment_count(self):
+        user = create_user()
+        self.client.force_login(user)
+        topic = create_topic(user)
+        entry = create_entry(topic)
+        Comment.objects.create(entry=entry, user=user, text="Comment 1")
+        Comment.objects.create(entry=entry, user=user, text="Comment 2")
+        response = self.client.get(
+            reverse("learning_logs:delete_entry_confirm", args=[entry.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "2 comments")
