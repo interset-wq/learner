@@ -59,33 +59,26 @@ Authentication and profile management (Django built-in auth).
 
 ### Prerequisites
 
-- **Python 3.13+** — [uv](https://docs.astral.sh/uv/) (recommended) or pip
-- **Node.js 22+** — [pnpm](https://pnpm.io/) (recommended) or npm/yarn
+- **Python 3.13+** with [uv](https://docs.astral.sh/uv/)
+- **Node.js 22+** with [pnpm](https://pnpm.io/)
 
 ### Linux / macOS
 
 ```bash
-make setup          # Install + migrate + seed + build
-make dev            # Start Django + Tailwind watch
-# Access: http://localhost:8000  |  Admin: admin/admin123
-make help           # Show all commands
+make setup
+make dev
 ```
 
-### Windows (Manual)
+### Windows
 
 ```bash
-uv sync             # or: pip install -r requirements.txt
-pnpm install        # or: npm install
-
+uv sync
+pnpm install
 uv run python manage.py migrate
 uv run python create_fake_data.py
-pnpm build          # or: npm run build
-
-# Run in two terminals:
-pnpm dev            # Tailwind watch
-uv run python manage.py runserver  # Django server
-
-# Access: http://localhost:8000  |  Admin: admin/admin123
+pnpm build
+pnpm dev
+uv run python manage.py runserver
 ```
 
 ### Docker
@@ -94,9 +87,10 @@ uv run python manage.py runserver  # Django server
 docker compose build
 docker compose up -d
 docker compose exec web uv run python create_fake_data.py
-# Access: http://localhost:8000  |  Admin: admin/admin123
 docker compose down
 ```
+
+Access: http://localhost:8000 | Admin: `admin` / `admin123`
 
 ## Project Structure
 
